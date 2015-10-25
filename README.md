@@ -1,4 +1,4 @@
-# v2 - A Minimalistic Performant 2D Vector Class
+# v2 - A Minimalistic 2D Vector Class
 
 v2 is not really a class, but merely a creator function generating plain javascript objects. So 
 `v2(3,4)` creates the plain object `{x:3,y:4}`. Then v2 also serves as a `namespace` holding a 
@@ -34,7 +34,7 @@ vector objects are created. But when using *mutator functions* as an alternative
 ```
 no temporary vector objects are created, which can significantly save memory and performs 
 much better. Instead vectors **a** and **b** loose their original values
-holding intermediate values then. You may read these functions as *inplace scale*, *inplace sum* and 
+holding intermediate values then. You may read those applied functions as *inplace scale*, *inplace sum* and 
 *inplace difference*.
 
 v2 is minimal, can perfectly deal with custom objects and is well suited for graphics, physics 
@@ -42,7 +42,6 @@ and engineering applications.
 
 # api
 <a name="v2"></a>
-## v2  -  A lightweight 2D vector class.
 
 **Kind**: global class  
 
@@ -51,6 +50,7 @@ and engineering applications.
   * [.isZero(u)](#v2.isZero) ⇒ <code>boolean</code>
   * [.isEq(u, v)](#v2.isEq) ⇒ <code>boolan</code>
   * [.isEps(u, v)](#v2.isEps) ⇒ <code>boolean</code>
+  * [.isUnit(u)](#v2.isUnit) ⇒ <code>boolean</code>
   * [.len(u)](#v2.len) ⇒ <code>number</code>
   * [.sqr(u)](#v2.sqr) ⇒ <code>number</code>
   * [.angle(u, v)](#v2.angle) ⇒ <code>number</code>
@@ -79,10 +79,6 @@ and engineering applications.
 ### v2(x,y) ⇒ <code>object</code>
 Create a plain 2D vector object {x:number,y:number} without using new.
 
-**Kind**: creator function  
-**Returns**: <code>2D object</code> - Equality.  
-
-
 <a name="v2.zero"></a>
 ### v2.zero
 Null vector.
@@ -91,10 +87,7 @@ Null vector.
 <a name="v2.isZero"></a>
 ### v2.isZero(u) ⇒ <code>boolean</code>
 Test for zero vector.<br>
-u === 0
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>boolean</code> - is zero vector.  
+<code>u === 0</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -103,10 +96,7 @@ u === 0
 <a name="v2.isEq"></a>
 ### v2.isEq(u, v) ⇒ <code>boolan</code>
 Equality of two vectors.
-u === v
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>boolan</code> - equality.  
+<code>u === v</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -116,23 +106,26 @@ u === v
 <a name="v2.isEps"></a>
 ### v2.isEps(u, v) ⇒ <code>boolean</code>
 Test, if a vector -- or the difference of two vectors -- is smaller than <code>Number.EPSILON</code>.<br>
-|u - v| < Number.EPSILON
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>boolean</code> - nearly equal or zero.  
+<code>|u - v| < Number.EPSILON</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | Vector to test. |
 | v | <code>[v2](#v2)</code> &#124; <code>undefined</code> | Vector to build the difference with u [optional]. |
 
+<a name="v2.isUnit"></a>
+### v2.isUnit(u) ⇒ <code>boolean</code>
+Test, if vector is a unit vector.<br>
+<code>|u| == 1</code>
+
+| Param | Type | Description |
+| --- | --- | --- |
+| u | <code>[v2](#v2)</code> | Vector to test. |
+
 <a name="v2.len"></a>
 ### v2.len(u) ⇒ <code>number</code>
 Length / Euclidean Norm of vector.<br>
-len = sqrt(u.x^2 + u.x^2)
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>number</code> - length of vector.  
+<code>len = sqrt(u.x^2 + u.x^2)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -141,10 +134,7 @@ len = sqrt(u.x^2 + u.x^2)
 <a name="v2.sqr"></a>
 ### v2.sqr(u) ⇒ <code>number</code>
 Squared Length of vector.<br>
-u*u = u.x^2 + u.x^2
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>number</code> - squared length of vector.  
+<code>u^2 = u.x^2 + u.x^2</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -154,11 +144,7 @@ u*u = u.x^2 + u.x^2
 ### v2.angle(u, v) ⇒ <code>number</code>
 Angle from u to v or from positive x-axis
 to u - if v is missing. [radians].<br>
-atan(~u*v)/(u*v)
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>number</code> - angle from u to v or from positive x-axis  
-                 to u.  
+<code>atan(~u*v)/(u*v)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -168,10 +154,7 @@ atan(~u*v)/(u*v)
 <a name="v2.copy"></a>
 ### v2.copy(u, v) ⇒ <code>[v2](#v2)</code>
 Assign vector u to v.<br>
-v = u
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - destination vector o.  
+<code>v = u</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -181,10 +164,7 @@ v = u
 <a name="v2.neg"></a>
 ### v2.neg(u) ⇒ <code>[v2](#v2)</code>
 Negative vector.<br>
--u
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector negated.  
+<code>-u</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -193,10 +173,7 @@ Negative vector.<br>
 <a name="v2.tilde"></a>
 ### v2.tilde(u) ⇒ <code>[v2](#v2)</code>
 Orthogonal vector - rotated by 90 degrees counterclockwise.<br>
-~u = {x:-u.y,y:u.x}
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D orthogonal vector.  
+<code>~u = {x:-u.y,y:u.x}</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -205,10 +182,7 @@ Orthogonal vector - rotated by 90 degrees counterclockwise.<br>
 <a name="v2.unit"></a>
 ### v2.unit(u) ⇒ <code>[v2](#v2)</code>
 Unit vector of a vector.<br>
-u / |u|
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D unit vector.  
+<code>u / |u|</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -217,10 +191,7 @@ u / |u|
 <a name="v2.sum"></a>
 ### v2.sum(u, v) ⇒ <code>[v2](#v2)</code>
 Sum of two vectors.<br>
-u + v
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector sum.  
+<code>u + v</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -230,10 +201,7 @@ u + v
 <a name="v2.dif"></a>
 ### v2.dif(u, v) ⇒ <code>[v2](#v2)</code>
 Difference of two vectors.<br>
-u - v
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector difference.  
+<code>u - v</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -243,10 +211,7 @@ u - v
 <a name="v2.dot"></a>
 ### v2.dot(u, v) ⇒ <code>number</code>
 Scalar (dot) product of two vectors.<br>
-u * v
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>number</code> - scalar product.  
+<code>u * v</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -256,12 +221,9 @@ u * v
 <a name="v2.perp"></a>
 ### v2.perp(u, v) ⇒ <code>number</code>
 perp dot product of two 2D vectors (area product).
-~u * v<br>
+<code>~u * v</code><br>
 Is equal to the value of the z-coordinate of the resulting
 vector of the cross product of the corresponding 3D vectors.
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>number</code> - perp dot product (~u*v).  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -271,10 +233,7 @@ vector of the cross product of the corresponding 3D vectors.
 <a name="v2.scl"></a>
 ### v2.scl(u, s) ⇒ <code>[v2](#v2)</code>
 Scale a vector by multiplication.<br>
-u*s
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector scaled.  
+<code>u*s</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -284,9 +243,6 @@ u*s
 <a name="v2.rot"></a>
 ### v2.rot(u, w) ⇒ <code>[v2](#v2)</code>
 Rotate a vector by angle w [radians].<br>
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector rotated.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -298,10 +254,7 @@ Rotate a vector by angle w [radians].<br>
 Transform a vector by 2x3 matrix (SVG). <br>
 <code>[a c e] [x] = [x']</code><br>
 <code>[b d f] [y] = [y']</code><br>
-<code>[0 0 1] [1] = [1 ]</code>
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector transformed.  
+<code>[0 0 1] [1] = [1]</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -316,10 +269,7 @@ Transform a vector by 2x3 matrix (SVG). <br>
 <a name="v2.ineg"></a>
 ### v2.ineg(u) ⇒ <code>[v2](#v2)</code>
 Inplace negate a vector.<br>
-u = -u
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - vector u negated.  
+<code>u = -u</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -328,10 +278,7 @@ u = -u
 <a name="v2.itilde"></a>
 ### v2.itilde(u) ⇒ <code>[v2](#v2)</code>
 Inplace create orthogonal vector - rotated by 90 degrees counterclockwise.<br>
-u = {x:-u.y,y:u.x}
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - orthogonal vector u.  
+<code>u = {x:-u.y,y:u.x}</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -340,10 +287,7 @@ u = {x:-u.y,y:u.x}
 <a name="v2.iunit"></a>
 ### v2.iunit(u) ⇒ <code>[v2](#v2)</code>
 Inplace create unit vector of a vector.<br>
-u = u / |u|
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D unit vector.  
+<code>u = u / |u|</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -352,10 +296,7 @@ u = u / |u|
 <a name="v2.isum"></a>
 ### v2.isum(u, v) ⇒ <code>[v2](#v2)</code>
 Add vector v to u.<br>
-u += v
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - Result vector u.  
+<code>u += v</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -365,10 +306,7 @@ u += v
 <a name="v2.idif"></a>
 ### v2.idif(u, v) ⇒ <code>[v2](#v2)</code>
 Subtract vector v from u.<br>
-u -= v
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - result vector u.  
+<code>u -= v</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -378,10 +316,7 @@ u -= v
 <a name="v2.iscl"></a>
 ### v2.iscl(u, s) ⇒ <code>[v2](#v2)</code>
 Inplace scale a vector.<br>
-u *= s
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - vector u scaled.  
+<code>u *= s</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -391,9 +326,6 @@ u *= s
 <a name="v2.irot"></a>
 ### v2.irot(w, u) ⇒ <code>[v2](#v2)</code>
 Inplace rotate a vector by angle w [radians].<br>
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - vector u rotated.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -405,11 +337,7 @@ Inplace rotate a vector by angle w [radians].<br>
 Inplace transform a vector by 2x3 matrix (SVG). <br>
 <code>[a c e] [x] = [x']</code><br>
 <code>[b d f] [y] = [y']</code><br>
-<code>[0 0 1] [1] = [1 ]</code>
-
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector transformed.  
+<code>[0 0 1] [1] = [1]</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -424,9 +352,6 @@ Inplace transform a vector by 2x3 matrix (SVG). <br>
 <a name="v2.str"></a>
 ### v2.str(u, n) ⇒ <code>string</code>
 String of vector. Format: "(x,y)".
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>string</code> - .  
 
 | Param | Type | Description |
 | --- | --- | --- |
