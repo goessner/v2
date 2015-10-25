@@ -324,13 +324,13 @@ Inplace scale a vector.<br>
 | s | <code>number</code> | Scaling factor |
 
 <a name="v2.irot"></a>
-### v2.irot(w, u) ⇒ <code>[v2](#v2)</code>
+### v2.irot(u, w) ⇒ <code>[v2](#v2)</code>
 Inplace rotate a vector by angle w [radians].<br>
 
 | Param | Type | Description |
 | --- | --- | --- |
-| w | <code>number</code> | Rotation angle in radians. |
 | u | <code>[v2](#v2)</code> | 2D Vector |
+| w | <code>number</code> | Rotation angle in radians. |
 
 <a name="v2.itrf"></a>
 ### v2.itrf(u, a, b, c, d, e, f) ⇒ <code>[v2](#v2)</code>
