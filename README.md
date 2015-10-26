@@ -15,7 +15,7 @@ which was the primary reason for choosing the object representation here.
 v2 differs three types of vector functions:
 
 * analyse functions (`isZero, isEq, isEps, isUnit, sqr, len, angle`)
-* operator functions (`copy, unit, neg, tilde, sum, dif, dot, perp, rot, scl, trf`)
+* operator functions (`unit, neg, tilde, sum, dif, dot, perp, rot, scl, trf, copy`)
 * mutator functions (`iunit, ineg, itilde, isum, idif, irot, iscl, itrf`)
 
 Whereas *operator functions* never modify their vector arguments, *mutator functions* intentionly do 
@@ -38,7 +38,32 @@ holding intermediate values then. You may read those applied functions as *inpla
 *inplace difference*.
 
 v2 is minimal, can perfectly deal with custom objects and is well suited for graphics, physics 
-and engineering applications. 
+and engineering applications. It is tiny. v2 weights 8 kB uncompressed and 2 kb minified.
+
+# Node Installation
+
+`npm install v2d`
+
+``` javascript
+var v2 = require('v2d');
+var u = v2(3,4);
+```
+
+# Browser
+
+``` html
+<script src="/v2.js"></script>
+<script>
+   var u = v2(3,4);
+</script>
+```
+# Test
+
+`npm run test`
+
+# License
+
+v2 is licensed under the terms of the MIT License. See LICENSE-MIT for details.
 
 # api
 <a name="v2"></a>
@@ -357,4 +382,3 @@ String of vector. Format: "(x,y)".
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 | n | <code>[v2](#v2)</code> | decimal places. [optional] |
-

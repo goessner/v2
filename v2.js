@@ -13,6 +13,10 @@ var v2 = function v2(x,y) { return {x:x||0.0,y:y||0.0}; }
  */
 v2.zero = Object.create(null, {x:{value:0},y:{value:0}});  // non-modifiable null vector ...
 /**
+ * Epsilon to test null vectors and unit vectors against.
+ */
+v2.EPS = Math.sqrt(Number.EPSILON);
+/**
  * Test for zero vector.<br>
  * u === 0
  * @method v2.isZero
@@ -33,15 +37,15 @@ v2.isEq = function(u,v) {
    return u.x === v.x && u.y === v.y;
 };
 /**
- * Test, if a vector -- or the difference of two vectors -- is smaller than <code>Number.EPSILON<code>.<br>
- * |u - v| < Number.EPSILON 
+ * Test, if a vector -- or the difference of two vectors -- is smaller than <code>v2.EPS<code>.<br>
+ * |u - v| < v2.EPS 
  * @param {v2} u Vector to test.
  * @param {v2|undefined} v Vector to build the difference with u [optional].
  * @returns {boolean} nearly equal or zero.
  */
 v2.isEps = function(u,v) {
-   return Math.abs(v ? u.x-v.x : u.x) < Number.EPSILON 
-       && Math.abs(v ? u.y-v.y : u.y) < Number.EPSILON;
+   return Math.abs(v ? u.x-v.x : u.x) < v2.EPS 
+       && Math.abs(v ? u.y-v.y : u.y) < v2.EPS;
 };
 /**
  * Test, if vector is a unit vector.<br>
@@ -50,7 +54,7 @@ v2.isEps = function(u,v) {
  * @returns {boolean}
  */
 v2.isUnit = function(u) {
-   return u.x*u.x + u.y*u.y - 1 < Number.EPSILON;
+   return u.x*u.x + u.y*u.y - 1 < v2.EPS;
 };
 /**
  * Length / Euclidean Norm of vector.<br>
@@ -81,7 +85,7 @@ v2.sqr = function(u)  {
  */
 v2.angle = function(u,v) {
    var t;
-   return v ? Math.atan2(Math.abs(t = u.x*v.y - u.y*v.x) < Number.EPSILON ? 0 : t, u.x*v.x + u.y*v.y)
+   return v ? Math.atan2(Math.abs(t = u.x*v.y - u.y*v.x) < v2.EPS ? 0 : t, u.x*v.x + u.y*v.y)
             : Math.atan2(u.y, u.x);
 };
 /**
@@ -125,7 +129,7 @@ v2.tilde = function(u) {
  * @return {v2} 2D unit vector.
  */
 v2.unit = function(u) {
-   var len = Math.hypot(u.x,u.y), invlen = Math.abs(len) < Number.EPSILON ? 0 : 1/len; 
+   var len = Math.hypot(u.x,u.y), invlen = Math.abs(len) < v2.EPS ? 0 : 1/len; 
    return {x:u.x*invlen,y:u.y*invlen}; 
 };
 /**
@@ -238,7 +242,7 @@ v2.itilde = function(u) {
  * @return {v2} 2D unit vector.
  */
 v2.iunit = function(u)  {
-   var len = Math.hypot(u.x,u.y), invlen = Math.abs(len) < Number.EPSILON ? 0 : 1/len; 
+   var len = Math.hypot(u.x,u.y), invlen = Math.abs(len) < v2.EPS ? 0 : 1/len; 
    u.x *= invlen;
    u.y *= invlen;
    return u;
