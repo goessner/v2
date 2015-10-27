@@ -21,6 +21,11 @@
 	}
 
 	function outputConsole(data, options) {
+		String.prototype.color = function(color) {
+			var pre = {"red":'\x1b[31m', "green":'\x1b[32m'},
+			    suf = '\x1b[0m';   // white
+			return pre[color]+this+suf;
+		};
 
 		console.log(getOutput(data));
 
@@ -30,21 +35,18 @@
 
 	function getOutput(data) {
 
-		var output = "", 
-			preFail = '\x1b[31m',  // red
-			prePass = '\x1b[32m',  // green
-			suffix  = '\x1b[0m';   // white
+		var output = "";
 
 		for (var k in data.errors) {
-			output += preFail + k + suffix + "\n" +
+			output += k.color("red") + "\n" +
 			          (data.errors[k].stack || data.errors[k])+"\n";
 		}
 
 		if (data.passed !== data.total) {
-			output += preFail + "FAILED:" + suffix;
+			output += "FAILED:".color("red");
 		}
 		else {
-			output += prePass + "PASSED:" + suffix;
+			output += "PASSED:".color("green");
 		}
 		output += data.passed+"/"+data.total;
 
