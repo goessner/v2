@@ -22,8 +22,6 @@
 
 	function outputConsole(data, options) {
 
-//		require('string-color');
-
 		console.log(getOutput(data));
 
 		process.exit(data.total-data.passed);
@@ -33,7 +31,7 @@
 	function getOutput(data) {
 
 		var output = "", 
-		    preFail = '\x1b[31m',  // red
+			preFail = '\x1b[31m',  // red
 			prePass = '\x1b[32m',  // green
 			suffix  = '\x1b[0m';   // white
 
@@ -42,8 +40,12 @@
 			          (data.errors[k].stack || data.errors[k])+"\n";
 		}
 
-		if (data.passed!==data.total) output += preFail + "FAILED:" + suffix;
-		else output += prePass + "PASSED:" + suffix;
+		if (data.passed !== data.total) {
+			output += preFail + "FAILED:" + suffix;
+		}
+		else {
+			output += prePass + "PASSED:" + suffix;
+		}
 		output += data.passed+"/"+data.total;
 
 		return output;
