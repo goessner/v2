@@ -61,7 +61,17 @@ describe("operator", {
 	},
 	'unit': function() {
 		var a = v2.unit(v2(3,4));
-		this.expect(Math.abs(a.x*a.x + a.y*a.y)-1 < v2.EPS,  false);
+		this.expect(Math.abs(a.x*a.x + a.y*a.y)-1 < v2.EPS, true);
+	},
+	'toPolar': function() {
+		var a = v2.toPolar(v2(3,4));
+		this.expect(a.r, 5);
+		this.expect(a.w, Math.atan2(4,3));
+	},
+	'fromPolar': function() {
+		var a = v2.fromPolar({r:5,w:Math.PI/6});
+		this.expect(a.x, 5*Math.cos(Math.PI/6));
+		this.expect(a.y, 5*Math.sin(Math.PI/6));
 	},
 });
 

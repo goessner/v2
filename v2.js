@@ -1,5 +1,5 @@
 /**
- * @author Stefan Goessner (c) 2013-15
+ * @author Stefan Goessner (c) 2013-16
  * @license MIT Licence (MIT)
  */
 /* jshint -W014 */
@@ -131,6 +131,24 @@ v2.tilde = function(u) {
 v2.unit = function(u) {
    var len = Math.hypot(u.x,u.y), invlen = Math.abs(len) < v2.EPS ? 0 : 1/len; 
    return {x:u.x*invlen,y:u.y*invlen}; 
+};
+/**
+ * Convert cartesian vector to polar format.<br>
+ * {r:sqrt(u.x^2+u.y^2),w:atan2(u.y,u.x)}
+ * @param {v2} u 2D Vector
+ * @return {object} 2D vector in polar format {r,w}.
+ */
+v2.toPolar = function(u) {
+   return {r:Math.hypot(u.x,u.y),w:Math.atan2(u.y,u.x)}; 
+};
+/**
+ * Convert polar vector {r,w} to cartesian vector.<br>
+ * {x:u.r*cos(u.w),y:u.r*sin(u.w)}
+ * @param  {object} 2D vector in polar format {r,w}.
+ * @return {v2} Cartesian 2D Vector
+ */
+v2.fromPolar = function(u) {
+   return {x:u.r*Math.cos(u.w),y:u.r*Math.sin(u.w)};
 };
 /**
  * Sum of two vectors.<br>

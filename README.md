@@ -8,6 +8,8 @@ Those functions expect objects like `{x:<number>,y:<number>}`. In fact they acce
 object at least providing an `x`- and `y`-member. An `x/y`-getter and - for some readonly 
 functions not even necessary - `x/y`-setter is also sufficient.
 
+With this convention v2 objects should perfectly harmonize with ECMAScript 7 [typed objects](https://github.com/hemanth/es7-features#typed-objects).
+
 An alternative representation using arrays `[<number>,<number>]` shows comparable [performance](http://jsperf.com/object-vs-array)
 results. Even if arrays perform slightly better, the code is already significantly less readable compared with objects, 
 which was the primary reason for choosing the object representation here.
@@ -15,7 +17,7 @@ which was the primary reason for choosing the object representation here.
 v2 differs three types of vector functions:
 
 * analyse functions (`isZero, isEq, isEps, isUnit, sqr, len, angle`)
-* operator functions (`unit, neg, tilde, sum, dif, rot, scl, trf, dot, perp`)
+* operator functions (`unit, neg, tilde, sum, dif, rot, scl, trf, dot, perp, toPolar, fromPolar`)
 * mutator functions (`iunit, ineg, itilde, isum, idif, irot, iscl, itrf, copy`)
 
 Whereas *operator functions* never modify their vector arguments, *mutator functions* intentionly do 
@@ -89,6 +91,8 @@ v2 is licensed under the terms of the MIT License. See LICENSE-MIT for details.
   * [.neg(u)](#v2.neg) ⇒ <code>[v2](#v2)</code>
   * [.tilde(u)](#v2.tilde) ⇒ <code>[v2](#v2)</code>
   * [.unit(u)](#v2.unit) ⇒ <code>[v2](#v2)</code>
+  * [.toPolar(u)](#v2.toPolar) ⇒ <code>object</code>
+  * [.fromPolar(u)](#v2.fromPolar) ⇒ <code>[v2](#v2)</code>
   * [.sum(u, v)](#v2.sum) ⇒ <code>[v2](#v2)</code>
   * [.dif(u, v)](#v2.dif) ⇒ <code>[v2](#v2)</code>
   * [.dot(u, v)](#v2.dot) ⇒ <code>number</code>
@@ -224,6 +228,25 @@ Unit vector of a vector.<br>
 | Param | Type | Description |
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
+
+<a name="v2.toPolar"></a>
+### v2.toPolar(u) ⇒ <code>object</code>
+Convert cartesian vector to polar format.<br>
+`{r:sqrt(u.x^2+u.y^2),w:atan2(u.y,u.x)}`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| u | <code>[v2](#v2)</code> | Cartesian 2D Vector |
+
+<a name="v2.fromPolar"></a>
+### v2.fromPolar(u) ⇒ <code>[v2](#v2)</code>
+Convert polar vector `{r,w}` to cartesian vector.<br>
+`{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| u | <code>object</code> | Vector in polar format {r,w}. |
+
 
 <a name="v2.sum"></a>
 ### v2.sum(u, v) ⇒ <code>[v2](#v2)</code>
