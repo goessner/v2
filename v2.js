@@ -181,7 +181,7 @@ v2.dot = function(u,v) {
    return u.x*v.x + u.y*v.y; 
 };
 /**
- * perp dot product of two 2D vectors (area product).
+ * perp dot product of two 2D vectors (area product).<br>
  * ~u * v<br>
  * Is equal to the value of the z-coordinate of the resulting
  * vector of the cross product of the corresponding 3D vectors.
@@ -228,7 +228,18 @@ v2.rot = function(u,w) {
  */
 v2.trf = function(u,a,b,c,d,e,f) {
    return { x: a*u.x + c*u.y + (e||0),
-            y: b*u.x + d*u.y + (f||0) }
+            y: b*u.x + d*u.y + (f||0) };
+};
+/**
+ * Apply similarity transformation to a vector. <br>
+ * a*u + b*~u
+ * @param {v2} u 2D Vector
+ * @param {number} a Scale u by a.
+ * @param {number} b Scale ~u by b.
+ * @return {v2} 2D vector transformed.
+ */
+v2.simtrf = function(u,a,b) {
+   return { x: a*u.x - b*u.y, y: a*u.y + b*u.x };
 };
 /**
  * Inplace negate a vector.<br>
