@@ -72,7 +72,27 @@ var u = v2(3,4);
 
 v2 is licensed under the terms of the MIT License. See LICENSE-MIT for details.
 
-# api
+#Change Log
+
+All notable changes to this project will be documented in this file. This project adheres to Semantic Versioning.
+
+## 1.2.0 - 2016-05-14
+
+### Added
+
+    simtrf function for applying efficient similarity transformation @goessner.
+
+
+## 1.1.0 - 2016-01-08
+
+### Added
+
+    toPolar function @goessner.
+    fromPolar function @goessner.
+    CHANGELOG.md @goessner.
+
+
+# API
 <a name="v2"></a>
 
 **Kind**: global class  
@@ -100,6 +120,7 @@ v2 is licensed under the terms of the MIT License. See LICENSE-MIT for details.
   * [.scl(u, s)](#v2.scl) ⇒ <code>[v2](#v2)</code>
   * [.rot(u, w)](#v2.rot) ⇒ <code>[v2](#v2)</code>
   * [.trf(u, a, b, c, d, e, f)](#v2.trf) ⇒ <code>[v2](#v2)</code>
+  * [.simtrf(u, a, b)](#v2.simtrf) ⇒ <code>[v2](#v2)</code>
   * [.ineg(u)](#v2.ineg) ⇒ <code>[v2](#v2)</code>
   * [.itilde(u)](#v2.itilde) ⇒ <code>[v2](#v2)</code>
   * [.iunit(u)](#v2.iunit) ⇒ <code>[v2](#v2)</code>
@@ -325,6 +346,17 @@ Transform a vector by 2x3 matrix (SVG). <br>
 | d | <code>number</code> | m22 |
 | e | <code>number</code> | x-translation [optional] |
 | f | <code>number</code> | y-translation [optional] |
+
+<a name="v2.simtrf"></a>
+### v2.simtrf(u, a, b) ⇒ <code>[v2](#v2)</code>
+Apply similarity transformation to a vector. <br>
+a*u + b*~u
+
+| Param | Type | Description |
+| --- | --- | --- |
+| u | <code>[v2](#v2)</code> | 2D Vector |
+| a | <code>number</code> | Scale u by a. |
+| b | <code>number</code> | Scale ~u by b. |
 
 <a name="v2.ineg"></a>
 ### v2.ineg(u) ⇒ <code>[v2](#v2)</code>
