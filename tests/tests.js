@@ -18,8 +18,8 @@ describe("create", {
 describe("analyse", {
 	'zero vector': function() {
 		var z = v2.zero;
-		z.x = 1;  // does not work ... components are read only.
-		this.expect(z.x===0 && z.y === 0, true);
+		z.x = 1;  // should not work ... components are read only.
+		this.expect(z.x === 0 && z.y === 0, true);
 	},
 	'is zero vector': function() {
 		var a = {x:0,y:0};
@@ -75,6 +75,4 @@ describe("operator", {
 	},
 });
 
-
 console.log(describe.logResults());
-
