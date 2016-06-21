@@ -1,6 +1,6 @@
 [![License](http://img.shields.io/:license-mit-blue.svg)](https://github.com/goessner/g2/license.txt)
-[![npm](https://img.shields.io/npm/v/v2d.svg?maxAge=2592000)](https://www.npmjs.com/package/v2d/)
-[![npm](https://img.shields.io/npm/dt/v2d.svg?maxAge=2592000)](https://www.npmjs.com/package/v2d)
+[![npm](https://img.shields.io/npm/v/v2d.svg)](https://www.npmjs.com/package/v2d/)
+[![npm](https://img.shields.io/npm/dt/v2d.svg)](https://www.npmjs.com/package/v2d)
 
 # v2 - A Minimalistic 2D Vector Class
 
