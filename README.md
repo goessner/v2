@@ -1,3 +1,7 @@
+[![License](http://img.shields.io/:license-mit-blue.svg)](http://badges.mit-license.org)
+[![npm](https://img.shields.io/npm/v/v2d.svg?maxAge=2592000)](https://www.npmjs.com/package/@goessner/g2/)
+[![npm](https://img.shields.io/npm/dt/v2d.svg?maxAge=2592000)](https://www.npmjs.com/package/v2d)
+
 # v2 - A Minimalistic 2D Vector Class
 
 v2 is not really a class, but merely a creator function generating plain javascript objects. So 
