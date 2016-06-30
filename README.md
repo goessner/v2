@@ -73,6 +73,15 @@ var u = v2(3,4);
 
 `npm run test`
 
+## GitCDN
+Use the link [https://gitcdn.xyz/repo/goessner/v2/master/v2.min.js](https://gitcdn.xyz/repo/goessner/g2/master/g2.min.js)
+for getting the latest commit as a raw file.
+
+In HTML use ...
+```html
+<script src="https://gitcdn.xyz/repo/goessner/v2/master/v2.min.js"></script>
+```
+
 # License
 
 v2 is licensed under the terms of the MIT License. See LICENSE-MIT for details.
