@@ -1,6 +1,7 @@
 [![License](http://img.shields.io/:license-mit-blue.svg)](https://github.com/goessner/g2/license.txt)
 [![npm](https://img.shields.io/npm/v/v2d.svg)](https://www.npmjs.com/package/v2d/)
 [![npm](https://img.shields.io/npm/dt/v2d.svg)](https://www.npmjs.com/package/v2d)
+[![Gemnasium](https://img.shields.io/gemnasium/mathiasbynens/he.svg)](https://github.com/goessner/v2)
 
 # v2 - A Minimalistic 2D Vector Class
 
@@ -12,7 +13,7 @@ Those functions expect objects like `{x:<number>,y:<number>}`. In fact they acce
 object at least providing an `x`- and `y`-member. An `x/y`-getter and - for some readonly 
 functions not even necessary - `x/y`-setter is also sufficient.
 
-With this convention v2 objects should perfectly harmonize with ECMAScript 7 [typed objects](https://github.com/hemanth/es7-features#typed-objects).
+With this convention v2 should perfectly harmonize with custom objects as well as possible ECMAScript 7 [typed objects](https://github.com/hemanth/es7-features#typed-objects).
 
 An alternative representation using arrays `[<number>,<number>]` shows comparable [performance](http://jsperf.com/object-vs-array)
 results. Even if arrays perform slightly better, the code is already significantly less readable compared with objects, 
@@ -21,7 +22,7 @@ which was the primary reason for choosing the object representation here.
 v2 differs three types of vector functions:
 
 * analyse functions (`isZero, isEq, isEps, isUnit, sqr, len, angle`)
-* operator functions (`unit, neg, tilde, sum, dif, rot, scl, trf, dot, perp, toPolar, fromPolar`)
+* operator functions (`unit, neg, tilde, sum, dif, rot, scl, trf, simtrf, dot, perp, toPolar, fromPolar`)
 * mutator functions (`iunit, ineg, itilde, isum, idif, irot, iscl, itrf, copy`)
 
 Whereas *operator functions* never modify their vector arguments, *mutator functions* intentionly do 

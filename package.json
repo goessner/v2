@@ -1,6 +1,6 @@
 {
   "name": "v2d",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "v2 - a minimalistic 2d vector class",
   "keywords": [
     "vector",
