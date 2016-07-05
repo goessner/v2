@@ -544,7 +544,7 @@ v2.itrf = function(u,a,b,c,d,e,f) {
  * @param {number} b Scale ~u by b.
  * @return {v2} 2D vector transformed.
  * @example
- * var u = {x:3,y:4};
+ * let u = {x:3,y:4};
  * v2.simtrf(u,2,1);   // u = {x:2,y:11};
  */
 v2.isimtrf = function(u,a,b) {
@@ -557,16 +557,19 @@ v2.isimtrf = function(u,a,b) {
 /**
  * String of vector. Format: `(x,y)`.
  * @param {v2} u 2D Vector
- * @param {v2} n decimal places. [optional]
+ * @param {v2} [n=3] decimal places. [optional]
  * @return {string}.
  * @example
- * var u1 = {x:3,y:4}, u2 = {x:1.23456,y:78.90123} 
+ * let u1 = {x:3,y:4}, u2 = {x:1.23456,y:78.90123} 
  * v2.str(u1);     // "(3,4)";
  * v2.str(u2,3);   // "(1.235,78.901)";
+ * v2.str(u2,0);   // "(1,79)";
+ * v2.str(u2);     // "(1.23456,78.90123)";
  */
 v2.str = function(u,n) {
-    return n > 0  ? "("+u.x.toFixed(n)+","+u.y.toFixed(n)+")"
-                  : "("+u.x+","+u.y+")";
+    return n > 0   ? "("+u.x.toFixed(n)+","+u.y.toFixed(n)+")"
+         : n === 0 ? "("+u.x.toFixed(0)+","+u.y.toFixed(0)+")"
+         : "("+u.x+","+u.y+")";
 }
 
 // use it with node.js ... ?
