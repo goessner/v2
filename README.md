@@ -586,16 +586,16 @@ v2.scl({x:3,y:4},2);      // {x:6,y:8};
 v2.scl({x:3,y:4},-1);     // {x:-3,y:-4};
 ```
 <a name="v2.rot"></a>
-### v2.rot(u, w) ⇒ <code>[v2](#v2)</code>
+### v2.rot(u, [w]) ⇒ <code>[v2](#v2)</code>
 Rotate a vector by angle w [radians].<br>
 
 **Kind**: static method of <code>[v2](#v2)</code>  
 **Returns**: <code>[v2](#v2)</code> - 2D vector rotated.  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
-| w | <code>number</code> | Rotation angle in radians |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| u | <code>[v2](#v2)</code> |  | 2D Vector |
+| [w] | <code>number</code> | <code>0</code> | Rotation angle in radians |
 
 **Example**  
 ```js
@@ -626,18 +626,18 @@ Transform a vector by 2x3 matrix (SVG). <br>
 v2.trf({x:3,y:4},2,0,0,1,4,5);   // {x:10,y:9};
 ```
 <a name="v2.simtrf"></a>
-### v2.simtrf(u, a, b) ⇒ <code>[v2](#v2)</code>
+### v2.simtrf(u, [a], [b]) ⇒ <code>[v2](#v2)</code>
 Apply similarity transformation to a vector. <br>
 `a*u + b*~u`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
 **Returns**: <code>[v2](#v2)</code> - 2D vector transformed.  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
-| a | <code>number</code> | Scale u by a. |
-| b | <code>number</code> | Scale ~u by b. |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| u | <code>[v2](#v2)</code> |  | 2D Vector |
+| [a] | <code>number</code> | <code>1</code> | Scale u by a. |
+| [b] | <code>number</code> | <code>0</code> | Scale ~u by b. |
 
 **Example**  
 ```js
@@ -767,17 +767,17 @@ var u1 = {x:3,y:4}, u2 = {x:1,y:2};
 v2.idif(u1,u2);      // u1 = {x:2,y:2};
 ```
 <a name="v2.iscl"></a>
-### v2.iscl(u, s) ⇒ <code>[v2](#v2)</code>
+### v2.iscl(u, [s]) ⇒ <code>[v2](#v2)</code>
 Inplace scale a vector.<br>
 `u *= s`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
 **Returns**: <code>[v2](#v2)</code> - vector u scaled.  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
-| s | <code>number</code> | Scaling factor |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| u | <code>[v2](#v2)</code> |  | 2D Vector |
+| [s] | <code>number</code> | <code>1</code> | Scaling factor |
 
 **Example**  
 ```js
@@ -785,16 +785,16 @@ let u = {x:3,y:4};
 v2.scl(u,2);      // u = {x:6,y:8};
 ```
 <a name="v2.irot"></a>
-### v2.irot(w, u) ⇒ <code>[v2](#v2)</code>
+### v2.irot(u, [w]) ⇒ <code>[v2](#v2)</code>
 Inplace rotate a vector by angle w [radians].<br>
 
 **Kind**: static method of <code>[v2](#v2)</code>  
 **Returns**: <code>[v2](#v2)</code> - vector u rotated.  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| w | <code>number</code> | Rotation angle in radians. |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| u | <code>[v2](#v2)</code> |  | 2D Vector |
+| [w] | <code>number</code> | <code>0</code> | Rotation angle in radians. |
 
 **Example**  
 ```js
@@ -859,6 +859,7 @@ String of vector. Format: `(x,y)`.
 
 **Example**  
 ```js
-var u = {x:3,y:4};
-v2.str(u);   // "(3,4)";
+var u1 = {x:3,y:4}, u2 = {x:1.23456,y:78.90123} 
+v2.str(u1);     // "(3,4)";
+v2.str(u2,3);   // "(1.235,78.901)";
 ```

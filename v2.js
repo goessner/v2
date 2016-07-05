@@ -327,13 +327,13 @@ v2.scl = function(u,s) {
 /**
  * Rotate a vector by angle w [radians].<br>
  * @param {v2} u 2D Vector
- * @param {number} w Rotation angle in radians
+ * @param {number} [w=0] Rotation angle in radians
  * @return {v2} 2D vector rotated.
  * @example
  * v2.rot({x:3,y:4},-Math.PI/2);   // {x:4,y:-3};
  */
 v2.rot = function(u,w) {
-   var s = Math.sin(w), c = Math.cos(w);
+   var s = Math.sin(w||0), c = Math.cos(w||0);
    return {x:c*u.x-s*u.y,y:s*u.x+c*u.y};
 };
 /**
@@ -486,15 +486,15 @@ v2.idif = function(u,v) {
  * Inplace scale a vector.<br>
  * `u *= s`
  * @param {v2} u 2D Vector
- * @param {number} s Scaling factor
+ * @param {number} [s=1] Scaling factor
  * @return {v2} vector u scaled.
  * @example
  * let u = {x:3,y:4};
  * v2.scl(u,2);      // u = {x:6,y:8};
  */
 v2.iscl = function(u,s) { 
-   u.x *= s;
-   u.y *= s;
+   u.x *= (s||1);
+   u.y *= (s||1);
    return u;
 };
 /**
