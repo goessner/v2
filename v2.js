@@ -4,11 +4,11 @@
  */
 /* jshint -W014 */
 /**
- *  Create a plain 2D vector object `{x,y}`
+ *  Create a plain 2D cartesian vector object `{x,y}`
  *  @class v2 Create plain vector object without using new.
  * @example
  * var u1 = v2(3,4),      // create vector as an alternative ...
- *     u2 = {x:-3,y:-4};  // ... to simple object notation.
+ *     u2 = {x:3,y:4};    // ... to simple object notation.
  */
 function v2(x,y) { return {x:x||0,y:y||0}; }
 
@@ -24,7 +24,7 @@ v2.EPS = Math.sqrt(Number.EPSILON);
  * Test for zero vector.<br>
  * `u === 0`
  * @method v2.isZero
- * @param {v2} u - 2D Vector
+ * @param {v2} u - 2D cartesian vector
  * @return {boolean} is zero vector.
  * @example
  * var u1 = v2(3,4), u2 = {x:-3,y:-4};
@@ -37,8 +37,8 @@ v2.isZero = function(u)  {
 /**
  * Equality of two vectors.
  * `u === v`
- * @param {v2} u 2D Vector
- * @param {v2} v 2D Vector
+ * @param {v2} u 2D cartesian vector
+ * @param {v2} v 2D cartesian vector
  * @return {boolan} equality.
  * @example
  * var u1 = v2(3,4), u2 = v2(1,2), u3 = {x:3,y:4};
@@ -108,7 +108,7 @@ v2.isPolar = function(u) {
 /**
  * Length / Euclidean Norm of vector.<br>
  * `len = sqrt(u.x^2 + u.x^2)`
- * @param {v2} u 2D Vector
+ * @param {v2} u 2D cartesian vector
  * @return {number} length of vector.
  * @example
  * var u = {x:3,y:4};
@@ -120,7 +120,7 @@ v2.len = function(u)  {
 /**
  * Squared Length of vector.<br>
  * `u*u = u.x^2 + u.x^2`
- * @param {v2} u 2D Vector
+ * @param {v2} u 2D cartesian vector
  * @return {number} squared length of vector.
  * @example
  * var u = v2(3,4);
@@ -133,8 +133,8 @@ v2.sqr = function(u)  {
  * Angle from u to v or from positive x-axis
  * to `u` - if `v` is missing. [radians].<br>
  * `atan(~u*v)/(u*v)`
- * @param {v2} u 2D Vector
- * @param {v2|undefined} v 2D Vector [optional]
+ * @param {v2} u 2D cartesian vector
+ * @param {v2} [v=undefined] 2D cartesian vector 
  * @return {number} angle from `u` to `v` or from positive x-axis  
  *                  to `u`.
  * @example
@@ -170,8 +170,8 @@ v2.copy = function(u,v) {
 /**
  * Negative vector.<br>
  * `-u`
- * @param {v2} u 2D Vector
- * @return {v2} 2D vector negated.
+ * @param {v2} u 2D cartesian vector
+ * @return {v2} 2D cartesian vector negated.
  * @example
  * v2.neg({x:2,y:1});  // {x:-2,y:-1}
  */
@@ -181,7 +181,7 @@ v2.neg = function(u) {
 /**
  * Orthogonal vector - rotated by 90 degrees counterclockwise. Also called *perp operator*.<br>
  * `~u = {x:-u.y,y:u.x}`
- * @param {v2} u 2D Vector
+ * @param {v2} u 2D cartesian vector
  * @return {v2} 2D orthogonal vector.
  * @example
  * v2.tilde({x:3,y:4});  // {x:-4,y:3}
@@ -192,8 +192,8 @@ v2.tilde = function(u) {
 /**
  * Unit vector of a vector.<br>
  * `u / |u|`
- * @param {v2} u 2D Vector
- * @return {v2} 2D unit vector.
+ * @param {v2} u 2D cartesian vector
+ * @return {v2} 2D unit cartesian vector.
  * @example
  * v2.unit({x:3,y:4});  // {x:0.6,y:0.8}
  */
@@ -205,8 +205,8 @@ v2.unit = function(u) {
  * Cartesian vector from polar vector.<br>
  * If argument is already cartesian it is simply returned.<br>
  * `{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
- * @param {v2} u 2D Vector
- * @return {object} 2D vector in cartesian format {x,y}.
+ * @param {v2} u 2D polar vector `{r,w}`.
+ * @return {object} 2D cartesian vector `{x,y}`.
  * @example
  * var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
  * v2.cartesian(u1);       // {x:3,y:4};
@@ -221,8 +221,8 @@ v2.cartesian = function(u) {
  * Polar vector from a cartesian vector.<br>
  * If argument is already polar it is simply returned.<br>
  * `{r:sqrt(u.x^2+u.y^2),w:atan2(u.y,u.x)}`
- * @param {v2} u 2D Vector
- * @return {object} 2D vector in polar format {r,w}.
+ * @param {v2} u 2D cartesian vector `{x,y}`.
+ * @return {object} 2D polar vector `{r,w}`.
  * @example
  * var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
  * v2.polar(u1);       // {r:5,w:0.9273};
@@ -235,19 +235,19 @@ v2.polar = function(u) {
 };
 /**
  * Convert cartesian vector to polar vector.<br>
- * *Obsolete*: use `v2.polar` instead.
- * @param {v2} u 2D Vector
- * @return {object} 2D vector in polar format {r,w}.
+ * @deprecated Use `v2.polar` instead.
+ * @param {v2} u 2D cartesian vector
+ * @return {object} 2D polar vector.
  */
 v2.toPolar = function(u) {
    return {r:Math.hypot(u.x,u.y),w:Math.atan2(u.y,u.x)}; 
 };
 /**
  * Convert polar vector {r,w} to cartesian vector.<br>
- * *Obsolete*: use `v2.cartesian` instead.<br>
+ * @deprecated Use `v2.cartesian` instead.<br>
  * `{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
- * @param  {object} u 2D vector in polar format {r,w}.
- * @return {v2} Cartesian 2D Vector
+ * @param  {object} u 2D polar vector.
+ * @return {v2} 2D cartesian vector
  */
 v2.fromPolar = function(u) {
    return {x:u.r*Math.cos(u.w),y:u.r*Math.sin(u.w)};
@@ -255,9 +255,9 @@ v2.fromPolar = function(u) {
 /**
  * Sum of two vectors.<br>
  * `u + v`
- * @param {v2} u 2D Vector
- * @param {v2} v 2D Vector
- * @return {v2} 2D vector sum.
+ * @param {v2} u 2D cartesian vector
+ * @param {v2} v 2D cartesian vector
+ * @return {v2} 2D cartesian vector sum.
  * @example
  * var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
  * v2.sum(u1,u2);      // {x:4,y:6};
@@ -268,9 +268,9 @@ v2.sum = function(u,v) {
 /**
  * Difference of two vectors.<br>
  * `u - v`
- * @param {v2} u 2D Vector
- * @param {v2} v 2D Vector
- * @return {v2} 2D vector difference.
+ * @param {v2} u 2D cartesian vector
+ * @param {v2} v 2D cartesian vector
+ * @return {v2} 2D cartesian vector difference.
  * @example
  * var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
  * v2.dif(u1,u2);      // {x:2,y:2};
@@ -281,8 +281,8 @@ v2.dif = function(u,v) {
 /**
  * Scalar (dot) product of two vectors (*inner product*).<br>
  * `u * v = u.x*v.x + u.y*v.y`
- * @param {v2} u 2D Vector
- * @param {v2} v 2D Vector
+ * @param {v2} u 2D cartesian vector
+ * @param {v2} v 2D cartesian vector
  * @return {number} scalar product.
  * @example
  * var u1 = {x:3,y:4}, u2 = {x:1,y:2}, u3 = {x:-4,y:3}; 
@@ -294,13 +294,13 @@ v2.dot = function(u,v) {
    return u.x*v.x + u.y*v.y; 
 };
 /**
- * perp dot product of two 2D vectors (*outer product* or *area product*).<br>
+ * perp dot product of two 2D cartesian vectors (*outer product* or *area product*).<br>
  * `~u * v = u.x*v.y - u.y*v.x`<br>
  * Same as : `v2.dot(v2.tilde(u),v)`<br>
  * Result is equal to the value of the z-coordinate of the
  * vector from the cross product of the corresponding 3D vectors.
- * @param {v2} u - 2D Vector
- * @param {v2} v - 2D Vector
+ * @param {v2} u - 2D cartesian vector
+ * @param {v2} v - 2D cartesian vector
  * @return {number}  perp dot product (`~u*v`).
  * @example
  * var u1 = {x:3,y:4}, u2 = {x:6,y:8}, u3 = {x:1,y:2}; 
@@ -314,9 +314,9 @@ v2.perp = function(u,v) {
 /**
  * Scale a vector by multiplication.<br>
  * `u*s`
- * @param {v2} u 2D Vector
+ * @param {v2} u 2D cartesian vector
  * @param {number} [s=1] Scaling factor
- * @return {v2} 2D vector scaled.
+ * @return {v2} 2D cartesian vector scaled.
  * @example
  * v2.scl({x:3,y:4},2);      // {x:6,y:8};
  * v2.scl({x:3,y:4},-1);     // {x:-3,y:-4};
@@ -326,9 +326,9 @@ v2.scl = function(u,s) {
 };
 /**
  * Rotate a vector by angle w [radians].<br>
- * @param {v2} u 2D Vector
+ * @param {v2} u 2D cartesian vector
  * @param {number} [w=0] Rotation angle in radians
- * @return {v2} 2D vector rotated.
+ * @return {v2} 2D cartesian vector rotated.
  * @example
  * v2.rot({x:3,y:4},-Math.PI/2);   // {x:4,y:-3};
  */
@@ -341,14 +341,14 @@ v2.rot = function(u,w) {
  * <code>[a c e] [x] = [x']</code><br>
  * <code>[b d f] [y] = [y']</code><br>
  * <code>[0 0 1] [1] = [1]</code>
- * @param {v2} u 2D Vector
+ * @param {v2} u 2D cartesian vector
  * @param {number} a m11
  * @param {number} b m21
  * @param {number} c m12
  * @param {number} d m22
  * @param {number} [e=0] x-translation
  * @param {number} [f=0] y-translation
- * @return {v2} 2D vector transformed.
+ * @return {v2} 2D cartesian vector transformed.
  * @example
  * v2.trf({x:3,y:4},2,0,0,1,4,5);   // {x:10,y:9};
  */
@@ -359,10 +359,10 @@ v2.trf = function(u,a,b,c,d,e,f) {
 /**
  * Apply similarity transformation to a vector. <br>
  * `a*u + b*~u`
- * @param {v2} u 2D Vector
+ * @param {v2} u 2D cartesian vector
  * @param {number} [a=1] Scale u by a.
  * @param {number} [b=0] Scale ~u by b.
- * @return {v2} 2D vector transformed.
+ * @return {v2} 2D cartesian vector transformed.
  * @example
  * v2.simtrf({x:3,y:4},2,1);   // {x:2,y:11};
  */
@@ -373,8 +373,8 @@ v2.simtrf = function(u,a,b) {
 /**
  * Inplace convert polar vector to cartesian vector.<br>
  * `{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
- * @param {v2} u 2D Vector
- * @return {object} Vector `u` in cartesian format {x,y}.
+ * @param {v2} u 2D polar vector.
+ * @return {object} 2D cartesian vector.
  * @example
  * var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
  * v2.icartesian(u1);       // u1 = {x:3,y:4};
@@ -392,8 +392,8 @@ v2.icartesian = function(u) {
 /**
  * Inplace convert cartesian vector to polar vector.<br>
  * `{r:sqrt(u.x^2+u.y^2),w:atan2(u.y,u.x)}`
- * @param {v2} u 2D Vector
- * @return {object} Vector `u`  in polar format {r,w}.
+ * @param {v2} u 2D cartesian vector
+ * @return {object} 2D polar vector.
  * @example
  * var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
  * v2.ipolar(u1);       // u1 = {r:5,w:0.9273};
@@ -411,8 +411,8 @@ v2.ipolar = function(u) {
 /**
  * Inplace negate a vector.<br>
  * `u = -u`
- * @param {v2} u 2D Vector
- * @return {v2} vector u negated.
+ * @param {v2} u 2D cartesian vector
+ * @return {v2} 2D vector u negated.
  * @example
  * let u = {x:2,y:1};
  * v2.ineg(u);  // u = {x:-2,y:-1}
@@ -425,8 +425,8 @@ v2.ineg = function(u) {
 /**
  * Inplace create orthogonal vector - rotated by 90 degrees counterclockwise.<br>
  * `u = {x:-u.y,y:u.x}`
- * @param {v2} u 2D Vector
- * @return {v2} orthogonal vector u.
+ * @param {v2} u 2D cartesian vector
+ * @return {v2} orthogonal cartesian vector u.
  * @example
  * let u = {x:3,y:4};
  * v2.tilde(u);  // u = {x:-4,y:3}
@@ -440,8 +440,8 @@ v2.itilde = function(u) {
 /**
  * Inplace create unit vector of a vector.<br>
  * `u = u / |u|`
- * @param {v2} u 2D Vector
- * @return {v2} 2D unit vector.
+ * @param {v2} u 2D cartesian vector
+ * @return {v2} 2D unit cartesian vector.
  * @example
  * let u = {x:3,y:4};
  * v2.unit(u);  // u = {x:0.6,y:0.8}
@@ -453,41 +453,49 @@ v2.iunit = function(u)  {
    return u;
 };
 /**
- * Add vector v to u (inplace sum).<br>
+ * Add vector v to u.<br>
  * `u += v`
- * @param {v2} u 2D Vector
- * @param {v2} v 2D Vector
+ * @param {v2} u 2D cartesian vector
+ * @param {v2} v 2D cartesian vector
  * @return {v2} Result vector u.
  * @example
  * var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
- * v2.isum(u1,u2);      // u1 = {x:4,y:6};
+ * v2.add(u1,u2);      // u1 = {x:4,y:6};
  */
-v2.isum = function(u,v) { 
+v2.add = function(u,v) { 
    u.x += v.x;
    u.y += v.y;
    return u;
 };
 /**
- * Subtract vector v from u (inplace difference).<br>
+ * Alias for `v2.add`,
+ */
+v2.isum = v2.add;
+/**
+ * Subtract vector v from u.<br>
  * `u -= v`
- * @param {v2} u 2D Vector
- * @param {v2} v 2D Vector
+ * @param {v2} u 2D cartesian vector
+ * @param {v2} v 2D cartesian vector
  * @return {v2} result vector u.
  * @example
  * var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
  * v2.idif(u1,u2);      // u1 = {x:2,y:2};
  */
-v2.idif = function(u,v) {
+v2.sub = function(u,v) {
    u.x -= v.x;
    u.y -= v.y;
    return u;
 };
 /**
+ * @property Alias for `v2.sub`.
+ */
+v2.idif = v2["sub"];
+/**
  * Inplace scale a vector.<br>
  * `u *= s`
- * @param {v2} u 2D Vector
+ * @param {v2} u 2D cartesian vector
  * @param {number} [s=1] Scaling factor
- * @return {v2} vector u scaled.
+ * @return {v2} cartesian vector u scaled.
  * @example
  * let u = {x:3,y:4};
  * v2.scl(u,2);      // u = {x:6,y:8};
@@ -499,7 +507,7 @@ v2.iscl = function(u,s) {
 };
 /**
  * Inplace rotate a vector by angle w [radians].<br>
- * @param {v2} u 2D Vector
+ * @param {v2} u 2D cartesian vector
  * @param {number} [w=0] Rotation angle in radians.
  * @return {v2} vector u rotated.
  * @example
@@ -518,14 +526,14 @@ v2.irot = function(u,w) {
  * <code>[a c e] [x] = [x']</code><br>
  * <code>[b d f] [y] = [y']</code><br>
  * <code>[0 0 1] [1] = [1]</code>
- * @param {v2} u 2D Vector
+ * @param {v2} u 2D cartesian vector
  * @param {number} a m11
  * @param {number} b m21
  * @param {number} c m12
  * @param {number} d m22
  * @param {number} e x-translation [optional]
  * @param {number} f y-translation [optional]
- * @return {v2} 2D vector transformed.
+ * @return {v2} 2D cartesian vector transformed.
  * @example
  * let u = {x:3,y:4};
  * v2.trf(u,2,0,0,1,4,5);   // u = {x:10,y:9};
@@ -539,10 +547,10 @@ v2.itrf = function(u,a,b,c,d,e,f) {
 /**
  * Apply inplace similarity transformation to a vector. <br>
  * `u = a*u + b*~u`
- * @param {v2} u 2D Vector
+ * @param {v2} u 2D cartesian vector
  * @param {number} a Scale u by a.
  * @param {number} b Scale ~u by b.
- * @return {v2} 2D vector transformed.
+ * @return {v2} 2D cartesian vector transformed.
  * @example
  * let u = {x:3,y:4};
  * v2.simtrf(u,2,1);   // u = {x:2,y:11};
@@ -556,7 +564,7 @@ v2.isimtrf = function(u,a,b) {
 
 /**
  * String of vector. Format: `(x,y)`.
- * @param {v2} u 2D Vector
+ * @param {v2} u 2D cartesian vector
  * @param {v2} n decimal places. [optional]
  * @return {string}.
  * @example

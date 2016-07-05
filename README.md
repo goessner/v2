@@ -7,11 +7,30 @@
 
 v2 is not really a class, but merely a creator function generating plain javascript objects. So 
 `v2(3,4)` creates the plain object `{x:3,y:4}`. Then v2 also serves as a `namespace` holding a 
-minimal set of static vector functions.
+minimal set of static vector functions. Those static functions expect objects like `{x:<number>,y:<number>}`.
 
-Those functions expect objects like `{x:<number>,y:<number>}`. In fact they accept every
-object at least providing an `x`- and `y`-member. An `x/y`-getter and - for some readonly 
-functions not even necessary - `x/y`-setter is also sufficient.
+The advantage here over class-based vector libraries is the more universal approach that seemlessly works with other 
+objects that happen to own an `x` and `y` member.
+
+```js
+var cir = { x:100, y:200, r: 50 }, 
+    pnt = { x: 30, y:150 },
+    dist = v2.len(v2.dif(cir,pnt)) - 50;  // dist = 36.02325
+```
+
+An `x/y`-getter and - for some readonly functions not even necessary - `x/y`-setter is also sufficient.
+
+```js
+var box = {
+   x0:100, y0:200, b:100, h:60,
+   // center point
+   get x()  { return this.x0 + this.b/2; },
+   set x(v) { this.x0 += v - (this.x0 + this.b/2); },
+   get y()  { return this.y0 + this.h/2; },
+   set y(v) { this.y0 += v - (this.y0 + this.h/2); }
+}
+v2.add(box,{x:50,y:75})    // box = { x0:150, y0:275, b:100, h:60 }
+```
 
 With this convention v2 should perfectly harmonize with custom objects as well as possible ECMAScript 7 [typed objects](https://github.com/hemanth/es7-features#typed-objects).
 
@@ -180,9 +199,8 @@ Create a plain 2D vector object {x:number,y:number} without using new.
 **Example**  
 ```js
 var u1 = v2(3,4),      // create vector as an alternative ...
-    u2 = {x:-3,y:-4};  // ... to simple object notation.
+    u2 = {x:3,y:4};    // ... to simple object notation.
 ```
-
 <a name="v2.zero"></a>
 ### v2.zero
 Null vector.
@@ -203,7 +221,7 @@ Test for zero vector.<br>
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -221,8 +239,8 @@ Equality of two vectors.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
-| v | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
+| v | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -313,7 +331,7 @@ Length / Euclidean Norm of vector.<br>
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -330,7 +348,7 @@ Squared Length of vector.<br>
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -338,7 +356,7 @@ var u = v2(3,4);
 v2.sqr(u);   // 25
 ```
 <a name="v2.angle"></a>
-### v2.angle(u, v) ⇒ <code>number</code>
+### v2.angle(u, [v]) ⇒ <code>number</code>
 Angle from u to v or from positive x-axis
 to `u` - if `v` is missing. [radians].<br>
 `atan(~u*v)/(u*v)`
@@ -349,8 +367,8 @@ to `u` - if `v` is missing. [radians].<br>
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
-| v | <code>[v2](#v2)</code> &#124; <code>undefined</code> | 2D Vector [optional] |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
+| [v] | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -383,11 +401,11 @@ Negative vector.<br>
 `-u`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector negated.  
+**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector negated.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -403,7 +421,7 @@ Orthogonal vector - rotated by 90 degrees counterclockwise. Also called *perp op
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -415,11 +433,11 @@ Unit vector of a vector.<br>
 `u / |u|`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D unit vector.  
+**Returns**: <code>[v2](#v2)</code> - 2D unit cartesian vector.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -432,11 +450,11 @@ If argument is already cartesian it is simply returned.<br>
 `{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>object</code> - 2D vector in cartesian format {x,y}.  
+**Returns**: <code>object</code> - 2D cartesian vector `{x,y}`.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D polar vector `{r,w}`. |
 
 **Example**  
 ```js
@@ -451,11 +469,11 @@ If argument is already polar it is simply returned.<br>
 `{r:sqrt(u.x^2+u.y^2),w:atan2(u.y,u.x)}`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>object</code> - 2D vector in polar format {r,w}.  
+**Returns**: <code>object</code> - 2D polar vector `{r,w}`.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector `{x,y}`. |
 
 **Example**  
 ```js
@@ -469,11 +487,11 @@ Convert cartesian vector to polar vector.<br>
 *Obsolete*: use `v2.polar` instead.
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>object</code> - 2D vector in polar format {r,w}.  
+**Returns**: <code>object</code> - 2D polar vector.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 <a name="v2.fromPolar"></a>
 ### v2.fromPolar(u) ⇒ <code>[v2](#v2)</code>
@@ -482,11 +500,11 @@ Convert polar vector {r,w} to cartesian vector.<br>
 `{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - Cartesian 2D Vector  
+**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>object</code> | 2D vector in polar format {r,w}. |
+| u | <code>object</code> | 2D polar vector. |
 
 <a name="v2.sum"></a>
 ### v2.sum(u, v) ⇒ <code>[v2](#v2)</code>
@@ -494,12 +512,12 @@ Sum of two vectors.<br>
 `u + v`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector sum.  
+**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector sum.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
-| v | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
+| v | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -512,12 +530,12 @@ Difference of two vectors.<br>
 `u - v`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector difference.  
+**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector difference.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
-| v | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
+| v | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -534,8 +552,8 @@ Scalar (dot) product of two vectors (*inner product*).<br>
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
-| v | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
+| v | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -546,7 +564,7 @@ v2.dot(u2,u3);      // 2;
 ```
 <a name="v2.perp"></a>
 ### v2.perp(u, v) ⇒ <code>number</code>
-perp dot product of two 2D vectors (*outer product* or *area product*).<br>
+perp dot product of two 2D cartesian vectors (*outer product* or *area product*).<br>
 `~u * v = u.x*v.y - u.y*v.x`<br>
 Same as : `v2.dot(v2.tilde(u),v)`<br>
 Result is equal to the value of the z-coordinate of the
@@ -557,8 +575,8 @@ vector from the cross product of the corresponding 3D vectors.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
-| v | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
+| v | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -573,11 +591,11 @@ Scale a vector by multiplication.<br>
 `u*s`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector scaled.  
+**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector scaled.  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| u | <code>[v2](#v2)</code> |  | 2D Vector |
+| u | <code>[v2](#v2)</code> |  | 2D cartesian vector |
 | [s] | <code>number</code> | <code>1</code> | Scaling factor |
 
 **Example**  
@@ -590,11 +608,11 @@ v2.scl({x:3,y:4},-1);     // {x:-3,y:-4};
 Rotate a vector by angle w [radians].<br>
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector rotated.  
+**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector rotated.  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| u | <code>[v2](#v2)</code> |  | 2D Vector |
+| u | <code>[v2](#v2)</code> |  | 2D cartesian vector |
 | [w] | <code>number</code> | <code>0</code> | Rotation angle in radians |
 
 **Example**  
@@ -609,11 +627,11 @@ Transform a vector by 2x3 matrix (SVG). <br>
 <code>[0 0 1] [1] = [1]</code>
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector transformed.  
+**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector transformed.  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| u | <code>[v2](#v2)</code> |  | 2D Vector |
+| u | <code>[v2](#v2)</code> |  | 2D cartesian vector |
 | a | <code>number</code> |  | m11 |
 | b | <code>number</code> |  | m21 |
 | c | <code>number</code> |  | m12 |
@@ -631,11 +649,11 @@ Apply similarity transformation to a vector. <br>
 `a*u + b*~u`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector transformed.  
+**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector transformed.  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| u | <code>[v2](#v2)</code> |  | 2D Vector |
+| u | <code>[v2](#v2)</code> |  | 2D cartesian vector |
 | [a] | <code>number</code> | <code>1</code> | Scale u by a. |
 | [b] | <code>number</code> | <code>0</code> | Scale ~u by b. |
 
@@ -649,11 +667,11 @@ Inplace convert polar vector to cartesian vector.<br>
 `{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>object</code> - Vector `u` in cartesian format {x,y}.  
+**Returns**: <code>object</code> - 2D cartesian vector.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D polar vector. |
 
 **Example**  
 ```js
@@ -667,11 +685,11 @@ Inplace convert cartesian vector to polar vector.<br>
 `{r:sqrt(u.x^2+u.y^2),w:atan2(u.y,u.x)}`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>object</code> - Vector `u`  in polar format {r,w}.  
+**Returns**: <code>object</code> - 2D polar vector.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -685,11 +703,11 @@ Inplace negate a vector.<br>
 `u = -u`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - vector u negated.  
+**Returns**: <code>[v2](#v2)</code> - 2D vector u negated.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -702,11 +720,11 @@ Inplace create orthogonal vector - rotated by 90 degrees counterclockwise.<br>
 `u = {x:-u.y,y:u.x}`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - orthogonal vector u.  
+**Returns**: <code>[v2](#v2)</code> - orthogonal cartesian vector u.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -719,11 +737,11 @@ Inplace create unit vector of a vector.<br>
 `u = u / |u|`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D unit vector.  
+**Returns**: <code>[v2](#v2)</code> - 2D unit cartesian vector.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -740,8 +758,8 @@ Add vector v to u (inplace sum).<br>
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
-| v | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
+| v | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -758,8 +776,8 @@ Subtract vector v from u (inplace difference).<br>
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
-| v | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
+| v | <code>[v2](#v2)</code> | 2D cartesian vector |
 
 **Example**  
 ```js
@@ -772,11 +790,11 @@ Inplace scale a vector.<br>
 `u *= s`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - vector u scaled.  
+**Returns**: <code>[v2](#v2)</code> - cartesian vector u scaled.  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| u | <code>[v2](#v2)</code> |  | 2D Vector |
+| u | <code>[v2](#v2)</code> |  | 2D cartesian vector |
 | [s] | <code>number</code> | <code>1</code> | Scaling factor |
 
 **Example**  
@@ -793,7 +811,7 @@ Inplace rotate a vector by angle w [radians].<br>
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| u | <code>[v2](#v2)</code> |  | 2D Vector |
+| u | <code>[v2](#v2)</code> |  | 2D cartesian vector |
 | [w] | <code>number</code> | <code>0</code> | Rotation angle in radians. |
 
 **Example**  
@@ -809,11 +827,11 @@ Inplace transform a vector by 2x3 matrix (SVG). <br>
 <code>[0 0 1] [1] = [1]</code>
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector transformed.  
+**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector transformed.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 | a | <code>number</code> | m11 |
 | b | <code>number</code> | m21 |
 | c | <code>number</code> | m12 |
@@ -832,11 +850,11 @@ Apply inplace similarity transformation to a vector. <br>
 `u = a*u + b*~u`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector transformed.  
+**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector transformed.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 | a | <code>number</code> | Scale u by a. |
 | b | <code>number</code> | Scale ~u by b. |
 
@@ -854,7 +872,7 @@ String of vector. Format: `(x,y)`.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
+| u | <code>[v2](#v2)</code> | 2D cartesian vector |
 | n | <code>[v2](#v2)</code> | decimal places. [optional] |
 
 **Example**  
