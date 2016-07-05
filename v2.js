@@ -246,7 +246,7 @@ v2.toPolar = function(u) {
  * Convert polar vector {r,w} to cartesian vector.<br>
  * *Obsolete*: use `v2.cartesian` instead.<br>
  * `{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
- * @param  {object} 2D vector in polar format {r,w}.
+ * @param  {object} u 2D vector in polar format {r,w}.
  * @return {v2} Cartesian 2D Vector
  */
 v2.fromPolar = function(u) {

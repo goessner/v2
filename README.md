@@ -476,7 +476,7 @@ Convert cartesian vector to polar vector.<br>
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
 <a name="v2.fromPolar"></a>
-### v2.fromPolar(2D) ⇒ <code>[v2](#v2)</code>
+### v2.fromPolar(u) ⇒ <code>[v2](#v2)</code>
 Convert polar vector {r,w} to cartesian vector.<br>
 *Obsolete*: use `v2.cartesian` instead.<br>
 `{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
@@ -486,7 +486,7 @@ Convert polar vector {r,w} to cartesian vector.<br>
 
 | Param | Type | Description |
 | --- | --- | --- |
-| 2D | <code>object</code> | vector in polar format {r,w}. |
+| u | <code>object</code> | 2D vector in polar format {r,w}. |
 
 <a name="v2.sum"></a>
 ### v2.sum(u, v) ⇒ <code>[v2](#v2)</code>
