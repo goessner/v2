@@ -90,6 +90,13 @@ v2 is licensed under the terms of the MIT License. See LICENSE-MIT for details.
 
 All notable changes to this project will be documented in this file. This project adheres to Semantic Versioning.
 
+## 1.3.1 - 2016-07-05
+
+### Added
+
+*   `isimtrf` function for applying inplace similarity transform.
+*   Examples to API docs added.
+
 ## 1.3.0 - 2016-07-04
 
 ### Added
@@ -126,6 +133,7 @@ All notable changes to this project will be documented in this file. This projec
 **Kind**: global class  
 
   * [v2()](#create_v2)
+  * [.zero](#v2.zero)
   * [.EPS](#v2.EPS)
   * [.isZero(u)](#v2.isZero) ⇒ <code>boolean</code>
   * [.isEq(u, v)](#v2.isEq) ⇒ <code>boolan</code>
@@ -148,9 +156,9 @@ All notable changes to this project will be documented in this file. This projec
   * [.dif(u, v)](#v2.dif) ⇒ <code>[v2](#v2)</code>
   * [.dot(u, v)](#v2.dot) ⇒ <code>number</code>
   * [.perp(u, v)](#v2.perp) ⇒ <code>number</code>
-  * [.scl(u, s)](#v2.scl) ⇒ <code>[v2](#v2)</code>
+  * [.scl(u, [s])](#v2.scl) ⇒ <code>[v2](#v2)</code>
   * [.rot(u, w)](#v2.rot) ⇒ <code>[v2](#v2)</code>
-  * [.trf(u, a, b, c, d, e, f)](#v2.trf) ⇒ <code>[v2](#v2)</code>
+  * [.trf(u, a, b, c, d, [e], [f])](#v2.trf) ⇒ <code>[v2](#v2)</code>
   * [.simtrf(u, a, b)](#v2.simtrf) ⇒ <code>[v2](#v2)</code>
   * [.icartesian(u)](#v2.icartesian) ⇒ <code>object</code>
   * [.ipolar(u)](#v2.ipolar) ⇒ <code>object</code>
@@ -162,11 +170,18 @@ All notable changes to this project will be documented in this file. This projec
   * [.iscl(u, s)](#v2.iscl) ⇒ <code>[v2](#v2)</code>
   * [.irot(w, u)](#v2.irot) ⇒ <code>[v2](#v2)</code>
   * [.itrf(u, a, b, c, d, e, f)](#v2.itrf) ⇒ <code>[v2](#v2)</code>
+  * [.isimtrf(u, a, b)](#v2.isimtrf) ⇒ <code>[v2](#v2)</code>
   * [.str(u, n)](#v2.str) ⇒ <code>string</code>
 
 <a name="create_v2"></a>
 ### v2(x,y) ⇒ <code>object</code>
 Create a plain 2D vector object {x:number,y:number} without using new.
+
+**Example**  
+```js
+var u1 = v2(3,4),      // create vector as an alternative ...
+    u2 = {x:-3,y:-4};  // ... to simple object notation.
+```
 
 <a name="v2.zero"></a>
 ### v2.zero
@@ -175,7 +190,7 @@ Null vector.
 **Kind**: static property of <code>[v2](#v2)</code>  
 <a name="v2.EPS"></a>
 ### v2.EPS
-Epsilon to test null vectors and unit vectors against.
+Epsilon (`1.49e-8`) to test null vectors and unit vectors against.
 
 **Kind**: static property of <code>[v2](#v2)</code>  
 <a name="v2.isZero"></a>
@@ -190,6 +205,12 @@ Test for zero vector.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u1 = v2(3,4), u2 = {x:-3,y:-4};
+v2.isZero(v2.add(u1,u2);   // true
+v2.isZero(v2.sub(u1,u2);   // false
+```
 <a name="v2.isEq"></a>
 ### v2.isEq(u, v) ⇒ <code>boolan</code>
 Equality of two vectors.
@@ -203,6 +224,12 @@ Equality of two vectors.
 | u | <code>[v2](#v2)</code> | 2D Vector |
 | v | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u1 = v2(3,4), u2 = v2(1,2), u3 = {x:3,y:4};
+v2.isEq(u1,u2);       // false
+v2.isEq(u1,u3);       // true
+```
 <a name="v2.isEps"></a>
 ### v2.isEps(u, v) ⇒ <code>boolean</code>
 Test, if a vector -- or the difference of two vectors -- is smaller than `v2.EPS`.<br>
@@ -216,6 +243,13 @@ Test, if a vector -- or the difference of two vectors -- is smaller than `v2.EPS
 | u | <code>[v2](#v2)</code> | Vector to test. |
 | v | <code>[v2](#v2)</code> &#124; <code>undefined</code> | Vector to build the difference with u [optional]. |
 
+**Example**  
+```js
+var u1 = v2(1e-10,2e-9), u2 = {x:3e-9,y:-4e-11};
+v2.isEps(u1);         // true
+v2.isEps(u1,u2);      // true, with difference
+                      // {x:-2.9e-9, y:2.04e-9} 
+```
 <a name="v2.isUnit"></a>
 ### v2.isUnit(u) ⇒ <code>boolean</code>
 Test, if vector is a unit vector.<br>
@@ -227,6 +261,12 @@ Test, if vector is a unit vector.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | Vector to test. |
 
+**Example**  
+```js
+var u1 = {x:3/5,y:4/5}, u2 = v2(3,-4);
+v2.isUnit(u1);        // true
+v2.isUnit(u2);        // false
+```
 <a name="v2.isCartesian"></a>
 ### v2.isCartesian(u) ⇒ <code>boolean</code>
 Test, if vector has cartesian coordinates `{x,y}`.
@@ -237,6 +277,14 @@ Test, if vector has cartesian coordinates `{x,y}`.
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | Vector to test. |
 
+**Example**  
+```js
+var u1 = v2(3,4), u2 = {r:5,w:0.9273}, 
+    u3 = {r:5,w:0.9273,x:3,y:4};
+v2.isCartesian(u1);   // true
+v2.isCartesian(u2);   // false
+v2.isCartesian(u3);   // true
+```
 <a name="v2.isPolar"></a>
 ### v2.isPolar(u) ⇒ <code>boolean</code>
 Test, if vector has polar coordinates `{r,w}`.
@@ -247,6 +295,14 @@ Test, if vector has polar coordinates `{r,w}`.
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | Vector to test. |
 
+**Example**  
+```js
+var u1 = v2(3,4), u2 = {r:5,w:0.9273}, 
+    u3 = {r:5,w:0.9273,x:3,y:4};
+v2.isPolar(u1);   // false
+v2.isPolar(u2);   // true
+v2.isPolar(u3);   // true
+```
 <a name="v2.len"></a>
 ### v2.len(u) ⇒ <code>number</code>
 Length / Euclidean Norm of vector.<br>
@@ -259,6 +315,11 @@ Length / Euclidean Norm of vector.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u = {x:3,y:4};
+v2.len(u);   // 5
+```
 <a name="v2.sqr"></a>
 ### v2.sqr(u) ⇒ <code>number</code>
 Squared Length of vector.<br>
@@ -271,6 +332,11 @@ Squared Length of vector.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u = v2(3,4);
+v2.sqr(u);   // 25
+```
 <a name="v2.angle"></a>
 ### v2.angle(u, v) ⇒ <code>number</code>
 Angle from u to v or from positive x-axis
@@ -286,6 +352,12 @@ to `u` - if `v` is missing. [radians].<br>
 | u | <code>[v2](#v2)</code> | 2D Vector |
 | v | <code>[v2](#v2)</code> &#124; <code>undefined</code> | 2D Vector [optional] |
 
+**Example**  
+```js
+var u1 = v2(3,4), u2 = v2(-4,3);
+v2.angle(u1);     // 0.9273
+v2.angle(u1,u2);  // 1.5708 (pi/2)
+```
 <a name="v2.copy"></a>
 ### v2.copy(u, v) ⇒ <code>[v2](#v2)</code>
 Assign vector u to v.<br>
@@ -299,6 +371,12 @@ Assign vector u to v.<br>
 | u | <code>[v2](#v2)</code> | 2D source vector |
 | v | <code>[v2](#v2)</code> &#124; <code>undefined</code> | 2D destination vector [optional]. |
 
+**Example**  
+```js
+var u1 = v2(3,4), u2 = {x:2,y:1}, u3;
+v2.copy(u1,u2);    // u2 = {x:3,y:4}
+u3 = v2.copy(u1);  // u3 = {x:3,y:4}
+```
 <a name="v2.neg"></a>
 ### v2.neg(u) ⇒ <code>[v2](#v2)</code>
 Negative vector.<br>
@@ -311,9 +389,13 @@ Negative vector.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+v2.neg({x:2,y:1});  // {x:-2,y:-1}
+```
 <a name="v2.tilde"></a>
 ### v2.tilde(u) ⇒ <code>[v2](#v2)</code>
-Orthogonal vector - rotated by 90 degrees counterclockwise.<br>
+Orthogonal vector - rotated by 90 degrees counterclockwise. Also called *perp operator*.<br>
 `~u = {x:-u.y,y:u.x}`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
@@ -323,6 +405,10 @@ Orthogonal vector - rotated by 90 degrees counterclockwise.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+v2.tilde({x:3,y:4});  // {x:-4,y:3}
+```
 <a name="v2.unit"></a>
 ### v2.unit(u) ⇒ <code>[v2](#v2)</code>
 Unit vector of a vector.<br>
@@ -335,10 +421,14 @@ Unit vector of a vector.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+v2.unit({x:3,y:4});  // {x:0.6,y:0.8}
+```
 <a name="v2.cartesian"></a>
 ### v2.cartesian(u) ⇒ <code>object</code>
-Cartesian vector of another vector.<br>
-If argument is already cartesian nothing is done.<br>
+Cartesian vector from polar vector.<br>
+If argument is already cartesian it is simply returned.<br>
 `{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
@@ -348,10 +438,16 @@ If argument is already cartesian nothing is done.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
+v2.cartesian(u1);       // {x:3,y:4};
+v2.cartesian(u2);       // {x:3,y:4};
+```
 <a name="v2.polar"></a>
 ### v2.polar(u) ⇒ <code>object</code>
-Polar vector of another vector.<br>
-If argument is already polar nothing is done.<br>
+Polar vector from a cartesian vector.<br>
+If argument is already polar it is simply returned.<br>
 `{r:sqrt(u.x^2+u.y^2),w:atan2(u.y,u.x)}`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
@@ -361,6 +457,12 @@ If argument is already polar nothing is done.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
+v2.polar(u1);       // {r:5,w:0.9273};
+v2.polar(u2);       // {r:5,w:0.9273};
+```
 <a name="v2.toPolar"></a>
 ### v2.toPolar(u) ⇒ <code>object</code>
 Convert cartesian vector to polar vector.<br>
@@ -399,6 +501,11 @@ Sum of two vectors.<br>
 | u | <code>[v2](#v2)</code> | 2D Vector |
 | v | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
+v2.sum(u1,u2);      // {x:4,y:6};
+```
 <a name="v2.dif"></a>
 ### v2.dif(u, v) ⇒ <code>[v2](#v2)</code>
 Difference of two vectors.<br>
@@ -412,10 +519,15 @@ Difference of two vectors.<br>
 | u | <code>[v2](#v2)</code> | 2D Vector |
 | v | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
+v2.dif(u1,u2);      // {x:2,y:2};
+```
 <a name="v2.dot"></a>
 ### v2.dot(u, v) ⇒ <code>number</code>
 Scalar (dot) product of two vectors.<br>
-`u * v`
+`u * v = u.x*v.x + u.y*v.y`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
 **Returns**: <code>number</code> - scalar product.  
@@ -425,12 +537,20 @@ Scalar (dot) product of two vectors.<br>
 | u | <code>[v2](#v2)</code> | 2D Vector |
 | v | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u1 = {x:3,y:4}, u2 = {x:1,y:2}, u3 = {x:-4,y:3}; 
+v2.dot(u1,u2);      // 11;
+v2.dot(u1,u3);      // 0;
+v2.dot(u2,u3);      // 2;
+```
 <a name="v2.perp"></a>
 ### v2.perp(u, v) ⇒ <code>number</code>
 perp dot product of two 2D vectors (area product).<br>
-`~u * v`<br>
-Is equal to the value of the z-coordinate of the resulting
-vector of the cross product of the corresponding 3D vectors.
+`~u * v = u.x*v.y - u.y*v.x`<br>
+Same as : `v2.dot(v2.tilde(u),v)`<br>
+Result is equal to the value of the z-coordinate of the
+vector from the cross product of the corresponding 3D vectors.
 
 **Kind**: static method of <code>[v2](#v2)</code>  
 **Returns**: <code>number</code> - perp dot product (`~u*v`).  
@@ -440,19 +560,31 @@ vector of the cross product of the corresponding 3D vectors.
 | u | <code>[v2](#v2)</code> | 2D Vector |
 | v | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u1 = {x:3,y:4}, u2 = {x:6,y:8}, u3 = {x:1,y:2}; 
+v2.dot(u1,u2);      // 11;
+v2.dot(u1,u3);      // 0;
+v2.dot(u2,u3);      // 2;
+```
 <a name="v2.scl"></a>
-### v2.scl(u, s) ⇒ <code>[v2](#v2)</code>
+### v2.scl(u, [s]) ⇒ <code>[v2](#v2)</code>
 Scale a vector by multiplication.<br>
 `u*s`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
 **Returns**: <code>[v2](#v2)</code> - 2D vector scaled.  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
-| s | <code>number</code> | Scaling factor |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| u | <code>[v2](#v2)</code> |  | 2D Vector |
+| [s] | <code>number</code> | <code>1</code> | Scaling factor |
 
+**Example**  
+```js
+v2.scl({x:3,y:4},2);      // {x:6,y:8};
+v2.scl({x:3,y:4},-1);     // {x:-3,y:-4};
+```
 <a name="v2.rot"></a>
 ### v2.rot(u, w) ⇒ <code>[v2](#v2)</code>
 Rotate a vector by angle w [radians].<br>
@@ -465,8 +597,12 @@ Rotate a vector by angle w [radians].<br>
 | u | <code>[v2](#v2)</code> | 2D Vector |
 | w | <code>number</code> | Rotation angle in radians |
 
+**Example**  
+```js
+v2.rot({x:3,y:4},-Math.PI/2);   // {x:4,y:-3};
+```
 <a name="v2.trf"></a>
-### v2.trf(u, a, b, c, d, e, f) ⇒ <code>[v2](#v2)</code>
+### v2.trf(u, a, b, c, d, [e], [f]) ⇒ <code>[v2](#v2)</code>
 Transform a vector by 2x3 matrix (SVG). <br>
 <code>[a c e] [x] = [x']</code><br>
 <code>[b d f] [y] = [y']</code><br>
@@ -475,16 +611,20 @@ Transform a vector by 2x3 matrix (SVG). <br>
 **Kind**: static method of <code>[v2](#v2)</code>  
 **Returns**: <code>[v2](#v2)</code> - 2D vector transformed.  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D Vector |
-| a | <code>number</code> | m11 |
-| b | <code>number</code> | m21 |
-| c | <code>number</code> | m12 |
-| d | <code>number</code> | m22 |
-| e | <code>number</code> | x-translation [optional] |
-| f | <code>number</code> | y-translation [optional] |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| u | <code>[v2](#v2)</code> |  | 2D Vector |
+| a | <code>number</code> |  | m11 |
+| b | <code>number</code> |  | m21 |
+| c | <code>number</code> |  | m12 |
+| d | <code>number</code> |  | m22 |
+| [e] | <code>number</code> | <code>0</code> | x-translation |
+| [f] | <code>number</code> | <code>0</code> | y-translation |
 
+**Example**  
+```js
+v2.trf({x:3,y:4},2,0,0,1,4,5);   // {x:10,y:9};
+```
 <a name="v2.simtrf"></a>
 ### v2.simtrf(u, a, b) ⇒ <code>[v2](#v2)</code>
 Apply similarity transformation to a vector. <br>
@@ -499,9 +639,13 @@ Apply similarity transformation to a vector. <br>
 | a | <code>number</code> | Scale u by a. |
 | b | <code>number</code> | Scale ~u by b. |
 
+**Example**  
+```js
+v2.simtrf({x:3,y:4},2,1);   // {x:2,y:11};
+```
 <a name="v2.icartesian"></a>
 ### v2.icartesian(u) ⇒ <code>object</code>
-Inplace convert vector to cartesian format.<br>
+Inplace convert polar vector to cartesian vector.<br>
 `{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
@@ -511,9 +655,15 @@ Inplace convert vector to cartesian format.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
+v2.icartesian(u1);       // u1 = {x:3,y:4};
+v2.icartesian(u2);       // u2 = {x:3,y:4};
+```
 <a name="v2.ipolar"></a>
 ### v2.ipolar(u) ⇒ <code>object</code>
-Inplace convert vector to polar format.<br>
+Inplace convert cartesian vector to polar vector.<br>
 `{r:sqrt(u.x^2+u.y^2),w:atan2(u.y,u.x)}`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
@@ -523,6 +673,12 @@ Inplace convert vector to polar format.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
+v2.ipolar(u1);       // u1 = {r:5,w:0.9273};
+v2.ipolar(u2);       // u2 = {r:5,w:0.9273};
+```
 <a name="v2.ineg"></a>
 ### v2.ineg(u) ⇒ <code>[v2](#v2)</code>
 Inplace negate a vector.<br>
@@ -535,6 +691,11 @@ Inplace negate a vector.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+let u = {x:2,y:1};
+v2.ineg(u);  // u = {x:-2,y:-1}
+```
 <a name="v2.itilde"></a>
 ### v2.itilde(u) ⇒ <code>[v2](#v2)</code>
 Inplace create orthogonal vector - rotated by 90 degrees counterclockwise.<br>
@@ -547,6 +708,11 @@ Inplace create orthogonal vector - rotated by 90 degrees counterclockwise.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+let u = {x:3,y:4};
+v2.tilde(u);  // u = {x:-4,y:3}
+```
 <a name="v2.iunit"></a>
 ### v2.iunit(u) ⇒ <code>[v2](#v2)</code>
 Inplace create unit vector of a vector.<br>
@@ -559,9 +725,14 @@ Inplace create unit vector of a vector.<br>
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+let u = {x:3,y:4};
+v2.unit(u);  // u = {x:0.6,y:0.8}
+```
 <a name="v2.isum"></a>
 ### v2.isum(u, v) ⇒ <code>[v2](#v2)</code>
-Add vector v to u.<br>
+Add vector v to u (inplace sum).<br>
 `u += v`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
@@ -572,9 +743,14 @@ Add vector v to u.<br>
 | u | <code>[v2](#v2)</code> | 2D Vector |
 | v | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
+v2.isum(u1,u2);      // u1 = {x:4,y:6};
+```
 <a name="v2.idif"></a>
 ### v2.idif(u, v) ⇒ <code>[v2](#v2)</code>
-Subtract vector v from u.<br>
+Subtract vector v from u (inplace difference).<br>
 `u -= v`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
@@ -585,6 +761,11 @@ Subtract vector v from u.<br>
 | u | <code>[v2](#v2)</code> | 2D Vector |
 | v | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
+v2.idif(u1,u2);      // u1 = {x:2,y:2};
+```
 <a name="v2.iscl"></a>
 ### v2.iscl(u, s) ⇒ <code>[v2](#v2)</code>
 Inplace scale a vector.<br>
@@ -598,6 +779,11 @@ Inplace scale a vector.<br>
 | u | <code>[v2](#v2)</code> | 2D Vector |
 | s | <code>number</code> | Scaling factor |
 
+**Example**  
+```js
+let u = {x:3,y:4};
+v2.scl(u,2);      // u = {x:6,y:8};
+```
 <a name="v2.irot"></a>
 ### v2.irot(w, u) ⇒ <code>[v2](#v2)</code>
 Inplace rotate a vector by angle w [radians].<br>
@@ -610,6 +796,11 @@ Inplace rotate a vector by angle w [radians].<br>
 | w | <code>number</code> | Rotation angle in radians. |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 
+**Example**  
+```js
+let u = {x:3,y:4};
+v2.rot(u,-Math.PI/2);   // u = {x:4,y:-3};
+```
 <a name="v2.itrf"></a>
 ### v2.itrf(u, a, b, c, d, e, f) ⇒ <code>[v2](#v2)</code>
 Inplace transform a vector by 2x3 matrix (SVG). <br>
@@ -630,6 +821,30 @@ Inplace transform a vector by 2x3 matrix (SVG). <br>
 | e | <code>number</code> | x-translation [optional] |
 | f | <code>number</code> | y-translation [optional] |
 
+**Example**  
+```js
+let u = {x:3,y:4};
+v2.trf(u,2,0,0,1,4,5);   // u = {x:10,y:9};
+```
+<a name="v2.isimtrf"></a>
+### v2.isimtrf(u, a, b) ⇒ <code>[v2](#v2)</code>
+Apply inplace similarity transformation to a vector. <br>
+`u = a*u + b*~u`
+
+**Kind**: static method of <code>[v2](#v2)</code>  
+**Returns**: <code>[v2](#v2)</code> - 2D vector transformed.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| u | <code>[v2](#v2)</code> | 2D Vector |
+| a | <code>number</code> | Scale u by a. |
+| b | <code>number</code> | Scale ~u by b. |
+
+**Example**  
+```js
+var u = {x:3,y:4};
+v2.simtrf(u,2,1);   // u = {x:2,y:11};
+```
 <a name="v2.str"></a>
 ### v2.str(u, n) ⇒ <code>string</code>
 String of vector. Format: `(x,y)`.
