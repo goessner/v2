@@ -557,7 +557,7 @@ v2.isimtrf = function(u,a,b) {
 /**
  * String of vector. Format: `(x,y)`.
  * @param {v2} u 2D Vector
- * @param {v2} [n=3] decimal places. [optional]
+ * @param {v2} n decimal places. [optional]
  * @return {string}.
  * @example
  * let u1 = {x:3,y:4}, u2 = {x:1.23456,y:78.90123} 

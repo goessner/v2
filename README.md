@@ -846,20 +846,20 @@ let u = {x:3,y:4};
 v2.simtrf(u,2,1);   // u = {x:2,y:11};
 ```
 <a name="v2.str"></a>
-### v2.str(u, [n]) ⇒ <code>string</code>
+### v2.str(u, n) ⇒ <code>string</code>
 String of vector. Format: `(x,y)`.
 
 **Kind**: static method of <code>[v2](#v2)</code>  
 **Returns**: <code>string</code> - .  
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| u | <code>[v2](#v2)</code> |  | 2D Vector |
-| [n] | <code>[v2](#v2)</code> | <code>3</code> | decimal places. [optional] |
+| Param | Type | Description |
+| --- | --- | --- |
+| u | <code>[v2](#v2)</code> | 2D Vector |
+| n | <code>[v2](#v2)</code> | decimal places. [optional] |
 
 **Example**  
 ```js
-let u1 = {x:3,y:4}, u2 = {x:1.23456,y:78.90123};
+let u1 = {x:3,y:4}, u2 = {x:1.23456,y:78.90123} 
 v2.str(u1);     // "(3,4)";
 v2.str(u2,3);   // "(1.235,78.901)";
 v2.str(u2,0);   // "(1,79)";
