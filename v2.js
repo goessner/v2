@@ -279,7 +279,7 @@ v2.dif = function(u,v) {
    return {x:u.x-v.x,y:u.y-v.y}; 
 };
 /**
- * Scalar (dot) product of two vectors.<br>
+ * Scalar (dot) product of two vectors (*inner product*).<br>
  * `u * v = u.x*v.x + u.y*v.y`
  * @param {v2} u 2D Vector
  * @param {v2} v 2D Vector
@@ -294,7 +294,7 @@ v2.dot = function(u,v) {
    return u.x*v.x + u.y*v.y; 
 };
 /**
- * perp dot product of two 2D vectors (area product).<br>
+ * perp dot product of two 2D vectors (*outer product* or *area product*).<br>
  * `~u * v = u.x*v.y - u.y*v.x`<br>
  * Same as : `v2.dot(v2.tilde(u),v)`<br>
  * Result is equal to the value of the z-coordinate of the
@@ -304,9 +304,9 @@ v2.dot = function(u,v) {
  * @return {number}  perp dot product (`~u*v`).
  * @example
  * var u1 = {x:3,y:4}, u2 = {x:6,y:8}, u3 = {x:1,y:2}; 
- * v2.dot(u1,u2);      // 11;
- * v2.dot(u1,u3);      // 0;
- * v2.dot(u2,u3);      // 2;
+ * v2.perp(u1,u2);      // 0;
+ * v2.perp(u1,u3);      // 2;
+ * v2.perp(u2,u3);      // 4;
  */
 v2.perp = function(u,v) { 
    return u.x*v.y - u.y*v.x; 
@@ -558,6 +558,9 @@ v2.isimtrf = function(u,a,b) {
  * @param {v2} u 2D Vector
  * @param {v2} n decimal places. [optional]
  * @return {string}.
+ * @example
+ * var u = {x:3,y:4};
+ * v2.str(u);   // "(3,4)";
  */
 v2.str = function(u,n) {
     return n > 0  ? "("+u.x.toFixed(n)+","+u.y.toFixed(n)+")"

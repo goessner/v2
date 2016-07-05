@@ -526,7 +526,7 @@ v2.dif(u1,u2);      // {x:2,y:2};
 ```
 <a name="v2.dot"></a>
 ### v2.dot(u, v) ⇒ <code>number</code>
-Scalar (dot) product of two vectors.<br>
+Scalar (dot) product of two vectors (*inner product*).<br>
 `u * v = u.x*v.x + u.y*v.y`
 
 **Kind**: static method of <code>[v2](#v2)</code>  
@@ -546,7 +546,7 @@ v2.dot(u2,u3);      // 2;
 ```
 <a name="v2.perp"></a>
 ### v2.perp(u, v) ⇒ <code>number</code>
-perp dot product of two 2D vectors (area product).<br>
+perp dot product of two 2D vectors (*outer product* or *area product*).<br>
 `~u * v = u.x*v.y - u.y*v.x`<br>
 Same as : `v2.dot(v2.tilde(u),v)`<br>
 Result is equal to the value of the z-coordinate of the
@@ -563,9 +563,9 @@ vector from the cross product of the corresponding 3D vectors.
 **Example**  
 ```js
 var u1 = {x:3,y:4}, u2 = {x:6,y:8}, u3 = {x:1,y:2}; 
-v2.dot(u1,u2);      // 11;
-v2.dot(u1,u3);      // 0;
-v2.dot(u2,u3);      // 2;
+v2.perp(u1,u2);      // 0;
+v2.perp(u1,u3);      // 2;
+v2.perp(u2,u3);      // 4;
 ```
 <a name="v2.scl"></a>
 ### v2.scl(u, [s]) ⇒ <code>[v2](#v2)</code>
@@ -856,3 +856,9 @@ String of vector. Format: `(x,y)`.
 | --- | --- | --- |
 | u | <code>[v2](#v2)</code> | 2D Vector |
 | n | <code>[v2](#v2)</code> | decimal places. [optional] |
+
+**Example**  
+```js
+var u = {x:3,y:4};
+v2.str(u);   // "(3,4)";
+```
