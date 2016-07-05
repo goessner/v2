@@ -360,13 +360,14 @@ v2.trf = function(u,a,b,c,d,e,f) {
  * Apply similarity transformation to a vector. <br>
  * `a*u + b*~u`
  * @param {v2} u 2D Vector
- * @param {number} a Scale u by a.
- * @param {number} b Scale ~u by b.
+ * @param {number} [a=1] Scale u by a.
+ * @param {number} [b=0] Scale ~u by b.
  * @return {v2} 2D vector transformed.
  * @example
  * v2.simtrf({x:3,y:4},2,1);   // {x:2,y:11};
  */
 v2.simtrf = function(u,a,b) {
+   a = a||1, b = b||0;
    return { x: a*u.x - b*u.y, y: a*u.y + b*u.x };
 };
 /**
@@ -498,14 +499,14 @@ v2.iscl = function(u,s) {
 };
 /**
  * Inplace rotate a vector by angle w [radians].<br>
- * @param {number} w Rotation angle in radians.
  * @param {v2} u 2D Vector
+ * @param {number} [w=0] Rotation angle in radians.
  * @return {v2} vector u rotated.
  * @example
  * let u = {x:3,y:4};
  * v2.rot(u,-Math.PI/2);   // u = {x:4,y:-3};
  */
-v2.irot = function(w,u) {
+v2.irot = function(u,w) {
    var s = Math.sin(w), c = Math.cos(w),
        x = c*u.x-s*u.y;
    u.y = s*u.x+c*u.y;
@@ -547,8 +548,8 @@ v2.itrf = function(u,a,b,c,d,e,f) {
  * v2.simtrf(u,2,1);   // u = {x:2,y:11};
  */
 v2.isimtrf = function(u,a,b) {
-   var x   = a*u.x - b*u.y;
-       u.y = a*u.y + b*u.x;
+   var x   = (a||1)*u.x - (b||0)*u.y;
+       u.y = (a||1)*u.y + (b||0)*u.x;
        u.x = x;
    return u;
 };
@@ -559,8 +560,9 @@ v2.isimtrf = function(u,a,b) {
  * @param {v2} n decimal places. [optional]
  * @return {string}.
  * @example
- * var u = {x:3,y:4};
- * v2.str(u);   // "(3,4)";
+ * var u1 = {x:3,y:4}, u2 = {x:1.23456,y:78.90123} 
+ * v2.str(u1);     // "(3,4)";
+ * v2.str(u2,3);   // "(1.235,78.901)";
  */
 v2.str = function(u,n) {
     return n > 0  ? "("+u.x.toFixed(n)+","+u.y.toFixed(n)+")"
