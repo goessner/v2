@@ -45,7 +45,7 @@ v2 differs three types of vector functions:
 
 Whereas *operator functions* never modify their vector arguments, *mutator functions* intentionly do 
 exactly that for memory saving and performance reasons. So consider the vector expression
-s(**a**+**b**-**c**), given three vectors **a**, **b**, **c** and scalar *s*. An appropriate *v2* representation
+s(**a**+**b**-**c**), scaling the sum of three vectors **a**, **b**, **c** by *s*. An appropriate *v2* representation
 using *operator functions* reads
 
 ```javascript
@@ -63,7 +63,7 @@ holding intermediate values then. You may read those applied functions as *inpla
 *inplace difference*.
 
 v2 is minimal, can perfectly deal with custom objects and is well suited for graphics, physics 
-and engineering applications. It is tiny. v2 weights 8 kB uncompressed and 2 kb minified.
+and engineering applications. It is tiny. v2 weights 15 kB uncompressed and 3 kb minified.
 
 
 # Vector-2D Math Resources
