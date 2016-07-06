@@ -9,8 +9,8 @@ v2 is not really a class, but merely a creator function generating plain javascr
 `v2(3,4)` creates the plain object `{x:3,y:4}`. Then v2 also serves as a `namespace` holding a 
 minimal set of static vector functions. Those static functions expect objects like `{x:<number>,y:<number>}`.
 
-The advantage here over class-based vector libraries is the more universal approach that seemlessly works with other 
-objects that happen to own an `x` and `y` member.
+The advantage here over class-based vector libraries is the more universal approach that 
+seemlessly also works with other objects that happen to own an `x` and `y` member.
 
 ```js
 var cir = { x:100, y:200, r: 50 }, 
@@ -31,18 +31,17 @@ var box = {
 }
 v2.add(box,{x:50,y:75})    // box = { x0:150, y0:275, b:100, h:60 }
 ```
-
 With this convention v2 should perfectly harmonize with custom objects as well as possible ECMAScript 7 [typed objects](https://github.com/hemanth/es7-features#typed-objects).
 
-An alternative representation using arrays `[<number>,<number>]` shows comparable [performance](http://jsperf.com/object-vs-array)
-results. Even if arrays perform slightly better, the code is already significantly less readable compared with objects, 
+An alternative representation using arrays `[3,4]` shows comparable performance results at creation time. 
+But the code is mostly less readable compared with object notation `{x:3,y:4}`, 
 which was the primary reason for choosing the object representation here.
 
 v2 differs three types of vector functions:
 
 * analyse functions (`isZero, isEq, isEps, isUnit, isPolar, isCartesian, sqr, len, angle`)
 * operator functions (`unit, neg, tilde, sum, dif, rot, scl, trf, simtrf, dot, perp, polar, cartesian`)
-* mutator functions (`iunit, ineg, itilde, isum, idif, irot, iscl, itrf, copy, ipolar, icartesian`)
+* mutator functions (`iunit, ineg, itilde, add, sub, irot, iscl, itrf, isimtrf, copy, ipolar, icartesian`)
 
 Whereas *operator functions* never modify their vector arguments, *mutator functions* intentionly do 
 exactly that for memory saving and performance reasons. So consider the vector expression
