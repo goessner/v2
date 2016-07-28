@@ -62,6 +62,16 @@ much better. Instead vectors **a** and **b** loose their original values
 holding intermediate values then. You may read those applied functions as *inplace scale*, *inplace sum* and 
 *inplace difference*.
 
+Considering this, best strategy with that example would be to let the innermost function create a temp object
+and reuse it then with the other outer functions, as in
+
+```javascript
+   v2.iscl(v2.isum(v2.dif(b,c),a),s)
+//     |       |       |_  create and return temp object
+//     |       |_  inplace add to first argument
+//     |_ inplace scale first argument 
+```
+
 v2 is minimal, can perfectly deal with custom objects and is well suited for graphics, physics 
 and engineering applications. It is tiny. v2 weights 15 kB uncompressed and 3 kb minified.
 
