@@ -33,9 +33,10 @@ v2.add(box,{x:50,y:75})    // box = { x0:150, y0:275, b:100, h:60 }
 ```
 With this convention v2 should perfectly harmonize with custom objects as well as possible ECMAScript 7 [typed objects](https://github.com/hemanth/es7-features#typed-objects).
 
-An alternative representation using arrays `[3,4]` shows comparable performance results at creation time. 
-But the code is mostly less readable compared with object notation `{x:3,y:4}`, 
-which was the primary reason for choosing the object representation here.
+An alternative representation using arrays `[3,4]` shows comparable performance results at creation and access time. 
+But the code is mostly less readable with array notation compared with object notation `{x:3,y:4}`.
+Another advantage of object notation is to also deal with alternate polar coordinates `{r:5,w:0.927}` without problems, 
+as the coordinates format is inline documented, in contrast to array notation `[5,0.927]` where you have to guess.
 
 v2 differs three types of vector functions:
 
@@ -70,6 +71,8 @@ and reuse it then with the other outer functions, as in
 //     |       |       |_  create and return temp object
 //     |       |_  inplace add to first argument
 //     |_ inplace scale first argument 
+// algebraic equivalence:
+// var tmp = b-c; tmp += a; tmp *= s;
 ```
 
 v2 is minimal, can perfectly deal with custom objects and is well suited for graphics, physics 
