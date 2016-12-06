@@ -1,10 +1,12 @@
 {
   "name": "v2d",
-  "version": "1.3.5",
+  "version": "1.3.7",
   "description": "v2 - a minimalistic 2d vector class",
   "keywords": [
     "vector",
-    "2d"
+    "2d",
+    "algebra",
+    "math"
   ],
   "main": "v2.js",
   "scripts": {

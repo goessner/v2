@@ -315,14 +315,14 @@ v2.perp = function(u,v) {
  * Scale a vector by multiplication.<br>
  * `u*s`
  * @param {v2} u 2D cartesian vector
- * @param {number} [s=1] Scaling factor
+ * @param {number} Scaling factor
  * @return {v2} 2D cartesian vector scaled.
  * @example
  * v2.scl({x:3,y:4},2);      // {x:6,y:8};
  * v2.scl({x:3,y:4},-1);     // {x:-3,y:-4};
  */
-v2.scl = function(u,s) { 
-   return {x:(s||1)*u.x,y:(s||1)*u.y};
+v2.scl = function(u,s) {
+   return {x:s*u.x,y:s*u.y};
 };
 /**
  * Rotate a vector by angle w [radians].<br>

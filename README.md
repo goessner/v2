@@ -121,6 +121,13 @@ v2 is licensed under the terms of the MIT License. See LICENSE-MIT for details.
 
 All notable changes to this project will be documented in this file. This project adheres to Semantic Versioning.
 
+## 1.3.7 - 2016-12-06
+
+### Modified
+
+*   `scl` function: default value [=1] of second parameter `factor` removed. Value `0` is allowed and supported now. 
+*   Examples to API docs added.
+
 ## 1.3.1 - 2016-07-05
 
 ### Added
@@ -608,7 +615,7 @@ Scale a vector by multiplication.<br>
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | u | <code>[v2](#v2)</code> |  | 2D cartesian vector |
-| [s] | <code>number</code> | <code>1</code> | Scaling factor |
+| [s] | <code>number</code> |  | Scaling factor |
 
 **Example**  
 ```js
