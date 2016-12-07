@@ -121,12 +121,11 @@ v2 is licensed under the terms of the MIT License. See LICENSE-MIT for details.
 
 All notable changes to this project will be documented in this file. This project adheres to Semantic Versioning.
 
-## 1.3.7 - 2016-12-06
+## 1.3.8 - 2016-12-07
 
 ### Modified
 
-*   `scl` function: default value [=1] of second parameter `factor` removed. Value `0` is allowed and supported now. 
-*   Examples to API docs added.
+*   `scl` and `iscl` function: default value [=1] of second parameter `factor` removed. Value `0` is allowed and supported now. 
 
 ## 1.3.1 - 2016-07-05
 

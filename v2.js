@@ -494,15 +494,15 @@ v2.idif = v2["sub"];
  * Inplace scale a vector.<br>
  * `u *= s`
  * @param {v2} u 2D cartesian vector
- * @param {number} [s=1] Scaling factor
+ * @param {number} Scaling factor
  * @return {v2} cartesian vector u scaled.
  * @example
  * let u = {x:3,y:4};
  * v2.scl(u,2);      // u = {x:6,y:8};
  */
 v2.iscl = function(u,s) { 
-   u.x *= (s||1);
-   u.y *= (s||1);
+   u.x *= s;
+   u.y *= s;
    return u;
 };
 /**
