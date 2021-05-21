@@ -1,95 +1,199 @@
-[![License](http://img.shields.io/:license-mit-blue.svg)](https://github.com/goessner/g2/license.txt)
+
 [![npm](https://img.shields.io/npm/v/v2d.svg)](https://www.npmjs.com/package/v2d/)
 [![npm](https://img.shields.io/npm/dt/v2d.svg)](https://www.npmjs.com/package/v2d)
-[![no dependencies](https://img.shields.io/gemnasium/mathiasbynens/he.svg)](https://github.com/goessner/v2)
 
-# v2 - A Minimalistic 2D Vector Class
+# `v2` - A Minimalistic 2D Symplectic Vector Space JavaScript Class
 
-v2 is not really a class, but merely a creator function generating plain javascript objects. So 
-`v2(3,4)` creates the plain object `{x:3,y:4}`. Then v2 also serves as a `namespace` holding a 
-minimal set of static vector functions. Those static functions expect objects like `{x:<number>,y:<number>}`.
+A short overview about symplectic geometry in vector space $\R^2$ is given in this [Cheat Sheet](https://www.researchgate.net/publication/348869700_Symplectic_Geometry_in_R2_-_Cheat_Sheet_V10). If you want to learn more, [read this](). In a nutshell: 
 
-The advantage here over class-based vector libraries is the more universal approach that 
-seemlessly also works with other objects that happen to own an `x` and `y` member.
+> "The *standard inner (dot) product* together with an *orthogonal operator* is the *symplectic inner product*."
+
+Symplectic geometry is a geometry of even dimensional spaces in   which area measurements, rather than length measurements, are the fundamental quantities. Benefits are:
+
+* Symplectic geometry is coordinate free, i.e. coordinates aren't needed except weexplicitly want them.
+* The definition of an explicit origin is not required.
+* Transformation matrices are rarely need. Similarity transformation mostly does whatwe want. 
+
+In its version 3.0 `v2` class library has undergone considerable changes. We now have `v2` objects as well as `v2` static functions. Latter work with arbitrary objects as long as these expose `x` and `y` members or `x` and `y` getters and setters.
+
+* `v2` objects
+    * Properties
+    * operator methods
+    * mutator methods
+* `v2` static functions
+    * analysis functions
+    * operator functions
+    * mutator functions
+
+`v2` objects are of `v2.prototype`. They own two member values `x` and `y`. Polar coordinates &ndash; magnitude `r` and angle `w` &ndash; are accessible and modifyable via getters and setters. Given that they are exactly as lightweight as plain `{x,y}` objects with `Object.prototype`.
+
+## `v2` objects
+
+### Properties
+
+| Property | Data&nbsp;Type | Access | Comment |
+|:---:|:---:| --- |:---|
+| `x` |`number`| member | x-coordinate |
+| `y` |`number`| member | y-coordinate |
+| `r` |`number`| getter | magnitude / length, polar-coordinate |
+| `r` |`number`| setter | If value is positive, magnitude is set to that value and angle `w` is preserved. <br>If value is negative, magnitude is set to absolute value and angle `w` is corrected to opposite direction angle. |
+| `w` |`number`| getter | get angle to pos. x-axis in [rad] in range [-pi ... pi] |
+| `w` |`number`| setter | set angle to pos. x-axis in [rad] |
+| `unit` |`v2`| getter | get unit direction vector. |
+| `unit` |`v2`| setter | set direction vector to unit direction vector of `v`, while preserving its magnitude. |
+| `isUnit` |`boolean`| getter | is this vector a unit vector. |
+| `isZero` |`boolean`| getter | is this vector zero vector. |
+| `clone` |`v2`| getter | get clone of this vector. |
+| `sqr` |`number`| getter | get magnitude squared. |
+| `tilde` |`v2`| getter | get orthogonal vector. |
+| `neg` |`v2`| getter | get negative vector of this vector. |
+| `inv` |`v2`| getter | get inverse vector of this vector. |
+| `plain` |`{x,y}`| getter | get equivalent plain vector `{x,y}` of this vector. |
+
+### Non-modifying Operator Methods
+
+`v2` vector operations are non-modifying by nature. If result value is a vector, it's always a temporarily created new one.
+
+Consider vector expression `(a+b-c)*s`, with `a,b,c` being vectors and `s` a scalar. An appropriate representation using operator functions reads
 
 ```js
-var cir = { x:100, y:200, r: 50 }, 
-    pnt = { x: 30, y:150 },
-    dist = v2.len(v2.dif(cir,pnt)) - 50;  // dist = 36.02325
+a.add(b).sub(c).scl(s)
+```
+None of the used vectors `a,b,c` are modified. Instead three temporary vector objects are created by each method used. Think `(((a+b)-c)*s)`, where each parenthesis pair creates a temporary vector.
+
+| Method | Result Type | Argument(s) | Comment |
+|:---:|:---:|:---:|:---|
+| `equals` |`boolean`| `v` | Compare vector for coordinate equality with `v` within numerical range of `Number.EPSILON`. |
+| `add` |`v2`| `v` | Add vector `v` to this vector returning a temporary vector. |
+| `sub` |`v2`| `v` | Subtract vector `v` from this vector returning a temporary vector. |
+| `dot` |`number`| `v` | Dot (inner) product with argument vector `v`. |
+| `symp` |`number`| `v` | Symplectic inner product with argument vector `v`. |
+| `scl` |`v2`| `s` | Scale this vector by argument factor `s` returning a temporary vector. |
+| `rot` |`v2`| `dw` | Rotate this vector by argument angle `dw` [rad] returning a temporary vector. |
+| `simtrf` |`v2`| `(lam,mu)` | Similarity transform this vector by two scalar values `lam` and `mu` returning a temporary vector. |
+
+### Modifying Mutator Methods
+
+Whereas operator methods never modify the current vector, mutator methods (starting with letter `i` &ndash; read `inplace`) intentionally do exactly that. Consider vector expression `(a+b-c)s` again. When using mutator methods
+
+```js
+a.add(b).isub(c).iscl(s)
 ```
 
-An `x/y`-getter and - for some readonly functions not even necessary - `x/y`-setter is also sufficient.
+only the first operator method `add` creates a tempory vector object, which is then succeedingly reused and overwritten by mutator methods `isub` and `iscl` (read `'inplace subtract'` and `'inplace scale'`). So using mutator methods that way we can save memory and improve performance.
+
+| Method | Result Type | Argument(s) | Comment |
+|:---:|:---:|:---:|:---|
+| `iadd` |`v2`| `v` | inplace add vector `v` to this vector. |
+| `isub` |`v2`| `v` | inplace subtract vector `v` from this vector. |
+| `ineg` |`v2`| &ndash; | inplace negate this vector. |
+| `iinv` |`v2`| &ndash; | inplace invert this vector. |
+| `itilde` |`v2`| &ndash; | inplace orthogonalize this vector. |
+| `iscl` |`v2`| `s` | inplace scale this vector by scalar `s`. |
+| `irot` |`v2`| `dw` | inplace rotate vector by difference angle `dw` in [rad]. |
+| `isimtrf` |`v2`| `(lam,mu)` | inplace Similarity transform by two scalar values `lam` and `mu`.. |
+| `freeze` |`v2`| &ndash; | make this vector immutable. |
+
+Please note that methods not returning a vector don't need an accompanying `inplace` method.
+
+## Static `v2` Functions
+
+`v2` has three types of static vector functions:
+
+* Aalysis functions (`isZero, isUnit, equals, len/r, angle/w, sqr`)
+* Operator functions (`unit, tilde/perp, neg, sum/add, dif/sub, rot, scl, simtrf, dot, symp`)
+* Mutator functions (`set, set_len/set_r, set_angle/set_w, set_unit, ineg, itilde/iperp, isum/iadd, idif/isub, irot, iscl, isimtrf, case1, case2, case3, case4, case5`)
+
+*Analysis* and *Operator* functions never modify their vector arguments. They work on arbitrary objects as long as these expose readable `x` and `y` members or `x` and `y` getters. Here is an example:
 
 ```js
-var box = {
+const cir = { x:100, y:200, r: 50 }, 
+      pnt = { x: 30, y:150 },
+      dist = v2.r(v2.dif(cir,pnt)) - cir.r;  // dist = 36.02325
+```
+
+In contrast *Mutator* functions intentionly modify their arguments. So they avoid creating temporary objects, which might be advantageous for memory saving and performance reasons. *Mutator* functions usually require argument objects with writeable `x` and `y` members or `x` and `y` getters and setters. Mutator functions accompanying operator functions ar distinguished by a prefixed letter `i`.
+
+```js
+const box = {
    x0:100, y0:200, b:100, h:60,
    // center point
    get x()  { return this.x0 + this.b/2; },
-   set x(v) { this.x0 += v - (this.x0 + this.b/2); },
+   set x(q) { this.x0 = q - this.b/2; },
    get y()  { return this.y0 + this.h/2; },
-   set y(v) { this.y0 += v - (this.y0 + this.h/2); }
+   set y(q) { this.y0 = q - this.h/2; }
 }
-v2.add(box,{x:50,y:75})    // box = { x0:150, y0:275, b:100, h:60 }
-```
-With this convention v2 should perfectly harmonize with custom objects as well as possible ECMAScript 7 [typed objects](https://github.com/hemanth/es7-features#typed-objects).
-
-An alternative representation using arrays `[3,4]` shows comparable performance results at creation and access time. 
-But the code is mostly less readable with array notation compared with object notation `{x:3,y:4}`.
-Another advantage of object notation is to also deal with alternate polar coordinates `{r:5,w:0.927}` without problems, 
-as the coordinates format is inline documented, in contrast to array notation `[5,0.927]` where you have to guess.
-
-v2 differs three types of vector functions:
-
-* analyse functions (`isZero, isEq, isEps, isUnit, isPolar, isCartesian, sqr, len, angle`)
-* operator functions (`unit, neg, tilde, sum, dif, rot, scl, trf, simtrf, dot, perp, polar, cartesian`)
-* mutator functions (`iunit, ineg, itilde, add, sub, irot, iscl, itrf, isimtrf, copy, ipolar, icartesian`)
-
-Whereas *operator functions* never modify their vector arguments, *mutator functions* intentionly do 
-exactly that for memory saving and performance reasons. So consider the vector expression
-s(**a**+**b**-**c**), scaling the sum of three vectors **a**, **b**, **c** by *s*. An appropriate *v2* representation
-using *operator functions* reads
-
-```javascript
-   v2.scl(v2.sum(a,v2.dif(b,c)),s)
-```
-None of the used vectors **a**, **b**, **c** are modified. Instead three temporary 
-vector objects are created. But when using *mutator functions* as an alternative
-
-```javascript
-   v2.iscl(v2.isum(a,v2.idif(b,c)),s)
-```
-no temporary vector objects are created, which can significantly save memory and performs 
-much better. Instead vectors **a** and **b** loose their original values
-holding intermediate values then. You may read those applied functions as *inplace scale*, *inplace sum* and 
-*inplace difference*.
-
-Considering this, best strategy with that example would be to let the innermost function create a temp object
-and reuse it then with the other outer functions, as in
-
-```javascript
-   v2.iscl(v2.isum(v2.dif(b,c),a),s)
-//     |       |       |_  create and return temp object
-//     |       |_  inplace add to first argument
-//     |_ inplace scale first argument 
-// algebraic equivalence:
-// var tmp = b-c; tmp += a; tmp *= s;
+v2.iadd(box,{x:50,y:75})    // box = { x0:150, y0:275, b:100, h:60 }
 ```
 
-v2 is minimal, can perfectly deal with custom objects and is well suited for graphics, physics 
-and engineering applications. It is tiny. v2 weights 15 kB uncompressed and 3 kb minified.
+### Analysis Functions
 
+| Function | Result&nbsp;Type | Argument(s) | Comment |
+|:---:|:---:|:---:|:---|
+| `v2.isZero` |`boolean`| `v` | Test for zero vector within range `Number.EPSILON`. |
+| `v2.isUnit` |`boolean`| `v` | Test for unit vector within range `Number.EPSILON`. |
+| `v2.equals` |`boolean`| `(a,b)` | Test two (plain) vectors for equality within range of `Number.EPSILON`. |
+| `v2.r`<br>`v2.len` |`number`| `v` | get magnitude of vector `v`. |
+| `v2.w`<br>`v2.angle` |`number`| `v` | get angle of (plain) vector `v` with respect to positive x-axis in [rad]. |
+| `v2.sqr` |`number`| `v` | Get magnitude squared of (plain) vector `v`. |
 
-# Vector-2D Math Resources
+### Operator Functions
 
-[Vector-2D Math Resources](https://github.com/goessner/vector2d-math)
+Operator functions work on arbitrary objects as long as these expose `x`and `y` members or `x`and `y` getters. They do not modify their arguments.
+
+| Function | Result&nbsp;Type | Argument(s) | Comment |
+|:---:|:---:|:---:|:---|
+| `v2.unit` |`{x,y}`| `v` | get unit vector of (plain) vector `v`. |
+| `v2.clone` |`{x,y}`| `v` | Get clone of (plain) vector `v` |
+| `v2.tilde`<br>`v2.perp` |`{x,y}`| `v` | Get orthogonal vector from (plain) vector `v`. |
+| `v2.neg` |`{x,y}`| `v` | Get negative vector from (plain) vector `v`. |
+| `v2.inv` |`{x,y}`| `v` | Get inverse vector from (plain) vector `v`. |
+| `v2.dot` |`number`| `(a,b)` | Dot (inner) product of two (plain) vectors. |
+| `v2.symp` |`number`| `(a,b)` | Symplectic inner product of two (plain) vectors. |
+| `v2.sum`<br>`v2.add` |`{x,y}`| `(a,b)` | Sum of two (plain) vectors. |
+| `v2.dif`<br>`v2.sub` |`{x,y}`| `(a,b)` | Difference of two (plain) vectors. |
+| `v2.scl` |`{x,y}`| `(v,s)` | Get (plain) vector `v` scaled by `s`. |
+| `v2.rot` |`{x,y}`| `(v,dw)` | Get (plain) vector `v` rotated by `dw` in [rad]. |
+| `v2.simtrf` |`{x,y}`| `(v,lam,mu)` | Get similarity-transformed vector `v` by two scalar values `lam` and `mu`. |
+
+### Mutator Functions
+
+Mutator functions work on arbitrary objects as long as these expose `x` and `y` members or `x`and `y` getters and setters. They might modify their arguments.
+
+Functions `case1, case2, case3, case4, case5` allow to easily solve the [five cases of the planar triangle equation](https://www.researchgate.net/publication/330997539_The_Five_Cases_of_the_Planar_Vector_Equation).
+
+| Function | Result&nbsp;Type | Argument(s) | Comment |
+|:---:|:---:|:---:|:---|
+| `v2.set` |`{x,y}`| `(a,b)` | Set vector `a` to coordinates of vector `b` returning `a`. |
+| `v2.set_r`<br>`v2.set_len` |`{x,y}`| `(v,r)` | Change magnitude of (plain) vector `v` to `r`, while preserving its direction. Returns `v`. |
+| `v2.set_w`<br>`v2.set_angle` |`{x,y}`| `(v,w)` | Change angle of (plain) vector `v` to `w` in [`rad`], while preserving its magnitude. Returns `v`. |
+| `v2.set_unit` |`{x,y}`| `(a,b)` | Change unit vector of (plain) vector `a` to unit vector of (plain) vector `b`, while preserving its magnitude. Returns `a`. |
+| `v2.itilde`<br>`v2.iperp` |`{x,y}`| `v` | Replace vector `v` by its orthogonal vector. |
+| `v2.ineg` |`{x,y}`| `v` | Replace vector `v` by its negative vector. |
+| `v2.iinv` |`{x,y}`| `v` | Replace vector `v` by its inverse vector . |
+| `v2.isum`<br>`v2.iadd` |`{x,y}`| `(a,b)` | Add vector `b` to vector `a`. Returns modified `a`. |
+| `v2.idif`<br>`v2.isub` |`{x,y}`| `(a,b)` | Subtract vector `b` from vector `a`. Returns modified `a`. |
+| `v2.iscl` |`{x,y}`| `(v,s)` | Inplace scale vector `v` by `s`. |
+| `v2.irot` |`{x,y}`| `(v,dw)` | Inplace rotate vector `v` by angle `dw` in [rad]. |
+| `v2.isimtrf` |`{x,y}`| `(v,lam,mu)` | Inplace similarity-transform vector `v` by scalar factors `lam` and `mu`. |
+| `v2.cstrLen` |`{x,y}`| `(a,b,ratio)` | Length constraint. Adjust magnitude of vector `a` by `ratio` with respect to vector `b`. |
+| `v2.cstrAng` |`{x,y}`| `(a,b,ratio)` | Angular constraint. Adjust angle of vector `a` by `ratio` with respect to vector `b`. |
+| `v2.case1` |&ndash;| `(a,b,c)` | First (trivial) case of the [planar vector triangle equation](https://www.researchgate.net/publication/330997539_The_Five_Cases_of_the_Planar_Vector_Equation). Magnitude and direction of vector `a` is modified. |
+| `v2.case2` |&ndash;| `(a,b,c,sgn)` | Second case of the [planar vector triangle equation](https://www.researchgate.net/publication/330997539_The_Five_Cases_of_the_Planar_Vector_Equation). Magnitude of vector `a` and direction of vector `b` is modified with respect to sign `sgn` of requested solution. |
+| `v2.case3` |&ndash;| `(a,b,c)` | Third case of the [planar vector triangle equation](https://www.researchgate.net/publication/330997539_The_Five_Cases_of_the_Planar_Vector_Equation). Magnitude of vector `a` and magnitude of vector `b` is modified. |
+| `v2.case4` |&ndash;| `(a,b,c,sgn)` | Fourth case of the [planar vector triangle equation](https://www.researchgate.net/publication/330997539_The_Five_Cases_of_the_Planar_Vector_Equation). Direction of vector `a` and direction of vector `b` is modified with respect to sign `sgn` of requested solution. |
+| `v2.case5` |&ndash;| `(a,b,c,sgn)` | Fifth case of the [planar vector triangle equation](https://www.researchgate.net/publication/330997539_The_Five_Cases_of_the_Planar_Vector_Equation). Direction and magnitude of vector `a` as well as direction of vector `b` (needs to be orthogonal to `a`) is modified with respect to sign `sgn` of requested solution. |
+
+`v2` is minimal and well suited for graphics, physics 
+and engineering applications. It is tiny. `v2` weights 15 kB uncompressed and 3 kb minified.
 
 # Node Installation
 
 `npm install v2d`
 
 ``` javascript
-var v2 = require('v2d');
-var u = v2(3,4);
+const v2 = require('v2d');
+const u = v2(3,4);
 ```
 
 # Browser
@@ -97,7 +201,7 @@ var u = v2(3,4);
 ``` html
 <script src="v2.js"></script>
 <script>
-   var u = v2(3,4);
+   const u = v2(3,4);
 </script>
 ```
 # Test
@@ -162,742 +266,3 @@ All notable changes to this project will be documented in this file. This projec
     toPolar function @goessner.
     fromPolar function @goessner.
     CHANGELOG.md @goessner.
-
-
-# API
-<a name="v2"></a>
-
-**Kind**: global class  
-
-  * [v2()](#create_v2)
-  * [.zero](#v2.zero)
-  * [.EPS](#v2.EPS)
-  * [.isZero(u)](#v2.isZero) ⇒ <code>boolean</code>
-  * [.isEq(u, v)](#v2.isEq) ⇒ <code>boolan</code>
-  * [.isEps(u, v)](#v2.isEps) ⇒ <code>boolean</code>
-  * [.isUnit(u)](#v2.isUnit) ⇒ <code>boolean</code>
-  * [.isCartesian(u)](#v2.isCartesian) ⇒ <code>boolean</code>
-  * [.isPolar(u)](#v2.isPolar) ⇒ <code>boolean</code>
-  * [.len(u)](#v2.len) ⇒ <code>number</code>
-  * [.sqr(u)](#v2.sqr) ⇒ <code>number</code>
-  * [.angle(u, v)](#v2.angle) ⇒ <code>number</code>
-  * [.copy(u, v)](#v2.copy) ⇒ <code>[v2](#v2)</code>
-  * [.neg(u)](#v2.neg) ⇒ <code>[v2](#v2)</code>
-  * [.tilde(u)](#v2.tilde) ⇒ <code>[v2](#v2)</code>
-  * [.unit(u)](#v2.unit) ⇒ <code>[v2](#v2)</code>
-  * [.cartesian(u)](#v2.cartesian) ⇒ <code>object</code>
-  * [.polar(u)](#v2.polar) ⇒ <code>object</code>
-  * [.toPolar(u)](#v2.toPolar) ⇒ <code>object</code>
-  * [.fromPolar(2D)](#v2.fromPolar) ⇒ <code>[v2](#v2)</code>
-  * [.sum(u, v)](#v2.sum) ⇒ <code>[v2](#v2)</code>
-  * [.dif(u, v)](#v2.dif) ⇒ <code>[v2](#v2)</code>
-  * [.dot(u, v)](#v2.dot) ⇒ <code>number</code>
-  * [.perp(u, v)](#v2.perp) ⇒ <code>number</code>
-  * [.scl(u, [s])](#v2.scl) ⇒ <code>[v2](#v2)</code>
-  * [.rot(u, w)](#v2.rot) ⇒ <code>[v2](#v2)</code>
-  * [.trf(u, a, b, c, d, [e], [f])](#v2.trf) ⇒ <code>[v2](#v2)</code>
-  * [.simtrf(u, a, b)](#v2.simtrf) ⇒ <code>[v2](#v2)</code>
-  * [.icartesian(u)](#v2.icartesian) ⇒ <code>object</code>
-  * [.ipolar(u)](#v2.ipolar) ⇒ <code>object</code>
-  * [.ineg(u)](#v2.ineg) ⇒ <code>[v2](#v2)</code>
-  * [.itilde(u)](#v2.itilde) ⇒ <code>[v2](#v2)</code>
-  * [.iunit(u)](#v2.iunit) ⇒ <code>[v2](#v2)</code>
-  * [.isum(u, v)](#v2.isum) ⇒ <code>[v2](#v2)</code>
-  * [.idif(u, v)](#v2.idif) ⇒ <code>[v2](#v2)</code>
-  * [.iscl(u, s)](#v2.iscl) ⇒ <code>[v2](#v2)</code>
-  * [.irot(w, u)](#v2.irot) ⇒ <code>[v2](#v2)</code>
-  * [.itrf(u, a, b, c, d, e, f)](#v2.itrf) ⇒ <code>[v2](#v2)</code>
-  * [.isimtrf(u, a, b)](#v2.isimtrf) ⇒ <code>[v2](#v2)</code>
-  * [.str(u, n)](#v2.str) ⇒ <code>string</code>
-
-<a name="create_v2"></a>
-### v2(x,y) ⇒ <code>object</code>
-Create a plain 2D vector object {x:number,y:number} without using new.
-
-**Example**  
-```js
-var u1 = v2(3,4),      // create vector as an alternative ...
-    u2 = {x:3,y:4};    // ... to simple object notation.
-```
-<a name="v2.zero"></a>
-### v2.zero
-Null vector.
-
-**Kind**: static property of <code>[v2](#v2)</code>  
-<a name="v2.EPS"></a>
-### v2.EPS
-Epsilon (`1.49e-8`) to test null vectors and unit vectors against.
-
-**Kind**: static property of <code>[v2](#v2)</code>  
-<a name="v2.isZero"></a>
-### v2.isZero(u) ⇒ <code>boolean</code>
-Test for zero vector.<br>
-`u === 0`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>boolean</code> - is zero vector.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-var u1 = v2(3,4), u2 = {x:-3,y:-4};
-v2.isZero(v2.add(u1,u2);   // true
-v2.isZero(v2.sub(u1,u2);   // false
-```
-<a name="v2.isEq"></a>
-### v2.isEq(u, v) ⇒ <code>boolan</code>
-Equality of two vectors.
-`u === v`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>boolan</code> - equality.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-| v | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-var u1 = v2(3,4), u2 = v2(1,2), u3 = {x:3,y:4};
-v2.isEq(u1,u2);       // false
-v2.isEq(u1,u3);       // true
-```
-<a name="v2.isEps"></a>
-### v2.isEps(u, v) ⇒ <code>boolean</code>
-Test, if a vector -- or the difference of two vectors -- is smaller than `v2.EPS`.<br>
-`|u - v| < v2.EPS`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>boolean</code> - nearly equal or zero.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | Vector to test. |
-| v | <code>[v2](#v2)</code> &#124; <code>undefined</code> | Vector to build the difference with u [optional]. |
-
-**Example**  
-```js
-var u1 = v2(1e-10,2e-9), u2 = {x:3e-9,y:-4e-11};
-v2.isEps(u1);         // true
-v2.isEps(u1,u2);      // true, with difference
-                      // {x:-2.9e-9, y:2.04e-9} 
-```
-<a name="v2.isUnit"></a>
-### v2.isUnit(u) ⇒ <code>boolean</code>
-Test, if vector is a unit vector.<br>
-`|u| === 1`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | Vector to test. |
-
-**Example**  
-```js
-var u1 = {x:3/5,y:4/5}, u2 = v2(3,-4);
-v2.isUnit(u1);        // true
-v2.isUnit(u2);        // false
-```
-<a name="v2.isCartesian"></a>
-### v2.isCartesian(u) ⇒ <code>boolean</code>
-Test, if vector has cartesian coordinates `{x,y}`.
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | Vector to test. |
-
-**Example**  
-```js
-var u1 = v2(3,4), u2 = {r:5,w:0.9273}, 
-    u3 = {r:5,w:0.9273,x:3,y:4};
-v2.isCartesian(u1);   // true
-v2.isCartesian(u2);   // false
-v2.isCartesian(u3);   // true
-```
-<a name="v2.isPolar"></a>
-### v2.isPolar(u) ⇒ <code>boolean</code>
-Test, if vector has polar coordinates `{r,w}`.
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | Vector to test. |
-
-**Example**  
-```js
-var u1 = v2(3,4), u2 = {r:5,w:0.9273}, 
-    u3 = {r:5,w:0.9273,x:3,y:4};
-v2.isPolar(u1);   // false
-v2.isPolar(u2);   // true
-v2.isPolar(u3);   // true
-```
-<a name="v2.len"></a>
-### v2.len(u) ⇒ <code>number</code>
-Length / Euclidean Norm of vector.<br>
-`len = sqrt(u.x^2 + u.x^2)`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>number</code> - length of vector.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-var u = {x:3,y:4};
-v2.len(u);   // 5
-```
-<a name="v2.sqr"></a>
-### v2.sqr(u) ⇒ <code>number</code>
-Squared Length of vector.<br>
-`u*u = u.x^2 + u.x^2`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>number</code> - squared length of vector.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-var u = v2(3,4);
-v2.sqr(u);   // 25
-```
-<a name="v2.angle"></a>
-### v2.angle(u, [v]) ⇒ <code>number</code>
-Angle from u to v or from positive x-axis
-to `u` - if `v` is missing. [radians].<br>
-`atan(~u*v)/(u*v)`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>number</code> - angle from `u` to `v` or from positive x-axis  
-                 to `u`.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-| [v] | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-var u1 = v2(3,4), u2 = v2(-4,3);
-v2.angle(u1);     // 0.9273
-v2.angle(u1,u2);  // 1.5708 (pi/2)
-```
-<a name="v2.copy"></a>
-### v2.copy(u, v) ⇒ <code>[v2](#v2)</code>
-Assign vector u to v.<br>
-`v = u`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - destination vector o.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D source vector |
-| v | <code>[v2](#v2)</code> &#124; <code>undefined</code> | 2D destination vector [optional]. |
-
-**Example**  
-```js
-var u1 = v2(3,4), u2 = {x:2,y:1}, u3;
-v2.copy(u1,u2);    // u2 = {x:3,y:4}
-u3 = v2.copy(u1);  // u3 = {x:3,y:4}
-```
-<a name="v2.neg"></a>
-### v2.neg(u) ⇒ <code>[v2](#v2)</code>
-Negative vector.<br>
-`-u`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector negated.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-v2.neg({x:2,y:1});  // {x:-2,y:-1}
-```
-<a name="v2.tilde"></a>
-### v2.tilde(u) ⇒ <code>[v2](#v2)</code>
-Orthogonal vector - rotated by 90 degrees counterclockwise. Also called *perp operator*.<br>
-`~u = {x:-u.y,y:u.x}`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D orthogonal vector.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-v2.tilde({x:3,y:4});  // {x:-4,y:3}
-```
-<a name="v2.unit"></a>
-### v2.unit(u) ⇒ <code>[v2](#v2)</code>
-Unit vector of a vector.<br>
-`u / |u|`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D unit cartesian vector.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-v2.unit({x:3,y:4});  // {x:0.6,y:0.8}
-```
-<a name="v2.cartesian"></a>
-### v2.cartesian(u) ⇒ <code>object</code>
-Cartesian vector from polar vector.<br>
-If argument is already cartesian it is simply returned.<br>
-`{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>object</code> - 2D cartesian vector `{x,y}`.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D polar vector `{r,w}`. |
-
-**Example**  
-```js
-var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
-v2.cartesian(u1);       // {x:3,y:4};
-v2.cartesian(u2);       // {x:3,y:4};
-```
-<a name="v2.polar"></a>
-### v2.polar(u) ⇒ <code>object</code>
-Polar vector from a cartesian vector.<br>
-If argument is already polar it is simply returned.<br>
-`{r:sqrt(u.x^2+u.y^2),w:atan2(u.y,u.x)}`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>object</code> - 2D polar vector `{r,w}`.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector `{x,y}`. |
-
-**Example**  
-```js
-var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
-v2.polar(u1);       // {r:5,w:0.9273};
-v2.polar(u2);       // {r:5,w:0.9273};
-```
-<a name="v2.toPolar"></a>
-### v2.toPolar(u) ⇒ <code>object</code>
-Convert cartesian vector to polar vector.<br>
-*Obsolete*: use `v2.polar` instead.
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>object</code> - 2D polar vector.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-<a name="v2.fromPolar"></a>
-### v2.fromPolar(u) ⇒ <code>[v2](#v2)</code>
-Convert polar vector {r,w} to cartesian vector.<br>
-*Obsolete*: use `v2.cartesian` instead.<br>
-`{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>object</code> | 2D polar vector. |
-
-<a name="v2.sum"></a>
-### v2.sum(u, v) ⇒ <code>[v2](#v2)</code>
-Sum of two vectors.<br>
-`u + v`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector sum.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-| v | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
-v2.sum(u1,u2);      // {x:4,y:6};
-```
-<a name="v2.dif"></a>
-### v2.dif(u, v) ⇒ <code>[v2](#v2)</code>
-Difference of two vectors.<br>
-`u - v`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector difference.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-| v | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
-v2.dif(u1,u2);      // {x:2,y:2};
-```
-<a name="v2.dot"></a>
-### v2.dot(u, v) ⇒ <code>number</code>
-Scalar (dot) product of two vectors (*inner product*).<br>
-`u * v = u.x*v.x + u.y*v.y`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>number</code> - scalar product.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-| v | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-var u1 = {x:3,y:4}, u2 = {x:1,y:2}, u3 = {x:-4,y:3}; 
-v2.dot(u1,u2);      // 11;
-v2.dot(u1,u3);      // 0;
-v2.dot(u2,u3);      // 2;
-```
-<a name="v2.perp"></a>
-### v2.perp(u, v) ⇒ <code>number</code>
-perp dot product of two 2D cartesian vectors (*outer product* or *area product*).<br>
-`~u * v = u.x*v.y - u.y*v.x`<br>
-Same as : `v2.dot(v2.tilde(u),v)`<br>
-Result is equal to the value of the z-coordinate of the
-vector from the cross product of the corresponding 3D vectors.
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>number</code> - perp dot product (`~u*v`).  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-| v | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-var u1 = {x:3,y:4}, u2 = {x:6,y:8}, u3 = {x:1,y:2}; 
-v2.perp(u1,u2);      // 0;
-v2.perp(u1,u3);      // 2;
-v2.perp(u2,u3);      // 4;
-```
-<a name="v2.scl"></a>
-### v2.scl(u, [s]) ⇒ <code>[v2](#v2)</code>
-Scale a vector by multiplication.<br>
-`u*s`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector scaled.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| u | <code>[v2](#v2)</code> |  | 2D cartesian vector |
-| [s] | <code>number</code> |  | Scaling factor |
-
-**Example**  
-```js
-v2.scl({x:3,y:4},2);      // {x:6,y:8};
-v2.scl({x:3,y:4},-1);     // {x:-3,y:-4};
-```
-<a name="v2.rot"></a>
-### v2.rot(u, [w]) ⇒ <code>[v2](#v2)</code>
-Rotate a vector by angle w [radians].<br>
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector rotated.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| u | <code>[v2](#v2)</code> |  | 2D cartesian vector |
-| [w] | <code>number</code> | <code>0</code> | Rotation angle in radians |
-
-**Example**  
-```js
-v2.rot({x:3,y:4},-Math.PI/2);   // {x:4,y:-3};
-```
-<a name="v2.trf"></a>
-### v2.trf(u, a, b, c, d, [e], [f]) ⇒ <code>[v2](#v2)</code>
-Transform a vector by 2x3 matrix (SVG). <br>
-<code>[a c e] [x] = [x']</code><br>
-<code>[b d f] [y] = [y']</code><br>
-<code>[0 0 1] [1] = [1]</code>
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector transformed.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| u | <code>[v2](#v2)</code> |  | 2D cartesian vector |
-| a | <code>number</code> |  | m11 |
-| b | <code>number</code> |  | m21 |
-| c | <code>number</code> |  | m12 |
-| d | <code>number</code> |  | m22 |
-| [e] | <code>number</code> | <code>0</code> | x-translation |
-| [f] | <code>number</code> | <code>0</code> | y-translation |
-
-**Example**  
-```js
-v2.trf({x:3,y:4},2,0,0,1,4,5);   // {x:10,y:9};
-```
-<a name="v2.simtrf"></a>
-### v2.simtrf(u, [a], [b]) ⇒ <code>[v2](#v2)</code>
-Apply similarity transformation to a vector. <br>
-`a*u + b*~u`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector transformed.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| u | <code>[v2](#v2)</code> |  | 2D cartesian vector |
-| [a] | <code>number</code> | <code>1</code> | Scale u by a. |
-| [b] | <code>number</code> | <code>0</code> | Scale ~u by b. |
-
-**Example**  
-```js
-v2.simtrf({x:3,y:4},2,1);   // {x:2,y:11};
-```
-<a name="v2.icartesian"></a>
-### v2.icartesian(u) ⇒ <code>object</code>
-Inplace convert polar vector to cartesian vector.<br>
-`{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>object</code> - 2D cartesian vector.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D polar vector. |
-
-**Example**  
-```js
-var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
-v2.icartesian(u1);       // u1 = {x:3,y:4};
-v2.icartesian(u2);       // u2 = {x:3,y:4};
-```
-<a name="v2.ipolar"></a>
-### v2.ipolar(u) ⇒ <code>object</code>
-Inplace convert cartesian vector to polar vector.<br>
-`{r:sqrt(u.x^2+u.y^2),w:atan2(u.y,u.x)}`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>object</code> - 2D polar vector.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
-v2.ipolar(u1);       // u1 = {r:5,w:0.9273};
-v2.ipolar(u2);       // u2 = {r:5,w:0.9273};
-```
-<a name="v2.ineg"></a>
-### v2.ineg(u) ⇒ <code>[v2](#v2)</code>
-Inplace negate a vector.<br>
-`u = -u`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D vector u negated.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-let u = {x:2,y:1};
-v2.ineg(u);  // u = {x:-2,y:-1}
-```
-<a name="v2.itilde"></a>
-### v2.itilde(u) ⇒ <code>[v2](#v2)</code>
-Inplace create orthogonal vector - rotated by 90 degrees counterclockwise.<br>
-`u = {x:-u.y,y:u.x}`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - orthogonal cartesian vector u.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-let u = {x:3,y:4};
-v2.tilde(u);  // u = {x:-4,y:3}
-```
-<a name="v2.iunit"></a>
-### v2.iunit(u) ⇒ <code>[v2](#v2)</code>
-Inplace create unit vector of a vector.<br>
-`u = u / |u|`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D unit cartesian vector.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-let u = {x:3,y:4};
-v2.unit(u);  // u = {x:0.6,y:0.8}
-```
-<a name="v2.isum"></a>
-### v2.isum(u, v) ⇒ <code>[v2](#v2)</code>
-Add vector v to u (inplace sum).<br>
-`u += v`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - Result vector u.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-| v | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
-v2.isum(u1,u2);      // u1 = {x:4,y:6};
-```
-<a name="v2.idif"></a>
-### v2.idif(u, v) ⇒ <code>[v2](#v2)</code>
-Subtract vector v from u (inplace difference).<br>
-`u -= v`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - result vector u.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-| v | <code>[v2](#v2)</code> | 2D cartesian vector |
-
-**Example**  
-```js
-var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
-v2.idif(u1,u2);      // u1 = {x:2,y:2};
-```
-<a name="v2.iscl"></a>
-### v2.iscl(u, [s]) ⇒ <code>[v2](#v2)</code>
-Inplace scale a vector.<br>
-`u *= s`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - cartesian vector u scaled.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| u | <code>[v2](#v2)</code> |  | 2D cartesian vector |
-| [s] | <code>number</code> | <code>1</code> | Scaling factor |
-
-**Example**  
-```js
-let u = {x:3,y:4};
-v2.scl(u,2);      // u = {x:6,y:8};
-```
-<a name="v2.irot"></a>
-### v2.irot(u, [w]) ⇒ <code>[v2](#v2)</code>
-Inplace rotate a vector by angle w [radians].<br>
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - vector u rotated.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| u | <code>[v2](#v2)</code> |  | 2D cartesian vector |
-| [w] | <code>number</code> | <code>0</code> | Rotation angle in radians. |
-
-**Example**  
-```js
-let u = {x:3,y:4};
-v2.rot(u,-Math.PI/2);   // u = {x:4,y:-3};
-```
-<a name="v2.itrf"></a>
-### v2.itrf(u, a, b, c, d, e, f) ⇒ <code>[v2](#v2)</code>
-Inplace transform a vector by 2x3 matrix (SVG). <br>
-<code>[a c e] [x] = [x']</code><br>
-<code>[b d f] [y] = [y']</code><br>
-<code>[0 0 1] [1] = [1]</code>
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector transformed.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-| a | <code>number</code> | m11 |
-| b | <code>number</code> | m21 |
-| c | <code>number</code> | m12 |
-| d | <code>number</code> | m22 |
-| e | <code>number</code> | x-translation [optional] |
-| f | <code>number</code> | y-translation [optional] |
-
-**Example**  
-```js
-let u = {x:3,y:4};
-v2.trf(u,2,0,0,1,4,5);   // u = {x:10,y:9};
-```
-<a name="v2.isimtrf"></a>
-### v2.isimtrf(u, a, b) ⇒ <code>[v2](#v2)</code>
-Apply inplace similarity transformation to a vector. <br>
-`u = a*u + b*~u`
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>[v2](#v2)</code> - 2D cartesian vector transformed.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-| a | <code>number</code> | Scale u by a. |
-| b | <code>number</code> | Scale ~u by b. |
-
-**Example**  
-```js
-let u = {x:3,y:4};
-v2.simtrf(u,2,1);   // u = {x:2,y:11};
-```
-<a name="v2.str"></a>
-### v2.str(u, n) ⇒ <code>string</code>
-String of vector. Format: `(x,y)`.
-
-**Kind**: static method of <code>[v2](#v2)</code>  
-**Returns**: <code>string</code> - .  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| u | <code>[v2](#v2)</code> | 2D cartesian vector |
-| n | <code>[v2](#v2)</code> | decimal places. [optional] |
-
-**Example**  
-```js
-let u1 = {x:3,y:4}, u2 = {x:1.23456,y:78.90123} 
-v2.str(u1);     // "(3,4)";
-v2.str(u2,3);   // "(1.235,78.901)";
-v2.str(u2,0);   // "(1,79)";
-v2.str(u2);     // "(1.23456,78.90123)";
-```

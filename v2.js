@@ -1,583 +1,698 @@
 /**
- * @author Stefan Goessner (c) 2013-16
+ * @author Stefan Goessner (c) 2013-2021
  * @license MIT Licence (MIT)
  */
 /* jshint -W014 */
+"use strict";
 /**
- *  Create a plain 2D cartesian vector object `{x,y}`
- *  @class v2 Create plain vector object without using new.
+ * Create a 2D cartesian vector object `{x,y}`
+ * @class v2 - Create vector object without using new.
+ * @function
+ * @param {object|number} v - plain `{x,y}` vector or x-coordinate.
+ * @param {number} [y=undefined] - y-coordinate.
  * @example
- * var u1 = v2(3,4),      // create vector as an alternative ...
- *     u2 = {x:3,y:4};    // ... to simple object notation.
+ * const u  = v2(3,4),       // create vector as ...
+ *       u2 = v2({x:3,y:4}); // ... smart alternative ...
+ *       u3 = {x:3,y:4};     // ... to simple object notation.
  */
-function v2(x,y) { return {x:x||0,y:y||0}; }
+function v2(v,y=undefined) {
+    if (Object.getPrototypeOf(v) === v2.prototype)  // `v` is already of type `v2` ...
+        return v;
+    else if (Object.getPrototypeOf(v) === Object.prototype) { // do not modify custom objects ...
+        const {x, y, r, w, cw, sw, ...rest} = v;
+        let X = 0, Y = 0;
+        if (x !== undefined && y !== undefined) { // cartesian coords (primary) .. !
+            X = x;
+            Y = y;
+        }
+        else if (r !== undefined && w !== undefined) { // polar coords .. !
+            X = r * Math.cos(w);
+            Y = r * Math.sin(w);
+        }
+        else if (r !== undefined && cw !== undefined && sw !== undefined) {
+            X = r * cw;
+            Y = r * sw;
+        }
+        else if (r !== undefined) { // to complete .. !
+            X = r;
+            Y = 0;
+        }
+        else if (w !== undefined) { // to complete .. !
+            X = Math.cos(w);
+            Y = Math.sin(w);
+        }
+        else if (x !== undefined) { // to complete .. ! 
+            X = x;
+            Y = 0;
+        }
+        else if (y !== undefined) { // to complete .. !
+            X = 0;
+            Y = y;
+        }
+        return v2.create({x:X,y:Y,...rest});
+    }
+    else if (typeof v === 'number' && typeof y === 'number')
+        return v2.create({x:v,y});
+    else
+        return v2.create({x:0,y:0});
+}
+v2.prototype = {
+    /**
+     * Set / copy coordinates from another vector
+     * @returns {object} this
+     * @param {object} v - source vector.
+     * @example
+     * let u1 = v2(3,4);
+     * u1.set({x:1,y:2}).plain;   // {x:1,y:2}
+     */
+    set(v) { 
+        this.x = v.x; this.y = v.y;
+        return this;
+    },
+    /**
+     * Test for zero vector within range `Number.EPSILON`.
+     * @type {boolean}
+     * @example
+     * const u = v2(3,4), u2 = {x:-3,y:-4};
+     * u.add(u2).isZero;   // true
+     * u.sub(u2).isZero;   // false
+     */
+    get isZero() { 
+        return Math.abs(this.x) < Number.EPSILON && Math.abs(this.y) < Number.EPSILON; 
+    },
+    /**
+     * Test for unit vector.
+     * @type {boolean}
+     * @example
+     * const u = v2(3,4), u2 = {x:-3,y:-4};
+     * v2(3,4).isZero;      // false
+     * v2(0.6,0.8).isunit;  // true
+     */
+    get isUnit() { 
+        return Math.abs(this.x**2 + this.y**2 - 1) < Number.EPSILON;
+    },
+    /**
+     * Magnitude / length
+     * @type {number}
+     * @example
+     * const u = v2(3,4);
+     * u.r === 5;   // true
+     */
+    get r() { return Math.hypot(this.x,this.y); },
+    set r(q) { 
+        const r = Math.hypot(this.x,this.y);
+        if (q > 0) {
+            this.x *= q/r; 
+            this.y *= q/r; 
+        }
+        else {
+            const pi2 = 2*Math.PI;
+            this.x *= -q/r; 
+            this.y *= -q/r;
+            this.w += Math.PI;  // turn 180°
+            this.w = ((this.w % pi2 + pi2) % pi2) > Math.PI ? this.w - pi2 : this.w;  // map to [-pi ... pi]
+        }
+    },
+    /**
+     * angle in [rad]
+     * @type {number}
+     * @example
+     * const u = v2(3,3);
+     * u.w === Math.PI/4;   // true
+     */
+    get w() { return Math.atan2(this.y,this.x); },
+    set w(q) { 
+        const r = Math.hypot(this.x,this.y); 
+        this.x = r*Math.cos(q); 
+        this.y = r*Math.sin(q); 
+    },
+    /**
+     * Get unit direction vector.
+     * Set unit direction vector, while preserving magnitude.
+     * @type {object} v2
+     * @example
+     * const u = v2(3,4);
+     * u.udir;             // { x: 0.6, y: 0.8 }
+     * u.udir = {x:0,y:2}  // { x: 0, y: 5 }
+     */
+    get unit() { const r = Math.hypot(this.x,this.y); return v2.create({x:this.x/r, y:this.y/r}); },
+    set unit(v){ const r_rv = Math.hypot(this.x,this.y)/Math.hypot(v.x,v.y); this.x = v.x*r_rv; this.y = v.y*r_rv; },
+    /**
+     * Provide clone of this vector.
+     * @type {object} v2
+     */
+    get clone() { return v2.create({x:this.x,y:this.y}); },
+    /**
+     * Magnitude squared.
+     * @type {number}
+     * @example
+     * const u = v2(3,4);
+     * u.sqr === 25;   // true
+     */
+    get sqr() { return this.x**2 + this.y**2; },
+    /**
+     * Tilde (orthogonal) vector
+     * @type {object} v2
+     * @example
+     * const u = v2(3,4);
+     * u.dot(u.tilde) === 0;   // true
+     */
+    get tilde() { return v2.create({x:-this.y,y:this.x}); },
+    get ort() { return v2.create({x:-this.y,y:this.x}); },
+    /**
+     * Negated vector
+     * @type {object} v2
+     * @example
+     * const u = v2(3,4);
+     * u.neg.plain;   // {x:-3,y:-4}
+     */
+    get neg()  { return v2.create({x:-this.x,y:-this.y}); },
+    /**
+     * inverted vector
+     * i.e. `u.dot(u.inv) === 1`
+     * @type {object} v2
+     * @example
+     * const u = v2(3,4);
+     * u.dot(u.inv) === 1;   // true
+     */
+    get inv()  { const rr = this.x**2 + this.y**2; return v2.create({x:this.x/rr, y:this.y/rr}); },
+    /**
+     * provide plain (prototype-free) vector
+     * @type {object} v2
+     * @example
+     * const u = v2(3,4);
+     * u.plain;   // {x:3,y:4}
+     */
+    get plain()  { return {x:this.x, y:this.y}; },
+    /**
+     * Turn into immutable object
+     * @returns {object} v2
+     * @example
+     * 
+     * let u = v2(3,4);
+     * u.freeze().x = 5;   // error
+     */
+    freeze() { 
+        return Object.freeze(this); 
+    },
+    /**
+     * vector comparison 
+     * @returns {boolean}
+     * @param {object} v2 - other vector.
+     * @example
+     * const u = v2(3,4);
+     * u.equals(u.plain);    // true
+     */
+    equals(v) { 
+        return Math.abs(this.x-v.x) < Number.EPSILON && Math.abs(this.y-v.y) < Number.EPSILON; 
+    },
+    /**
+     * dot (inner) product
+     * @returns {number}
+     * @param {object} v - other vector.
+     * @example
+     * const u1 = v2(3,4), u2 = v2(1,2);
+     * u1.dot(u2) === 11;   // true
+     */
+    dot(v) {
+        return this.x*v.x + this.y*v.y;
+    },
+    /**
+     * symplectic (inner) product
+     * or use alias `perp(v)`
+     * @returns {number}
+     * @param {object} v - other vector.
+     * @example
+     * const u = v2(3,4), u2 = v2(1,2);
+     * u.symp(u2) === 2;        // true ... same as
+     * u.tilde.dot(u2) === 2;   // true
+     */
+    symp(v) {
+        return this.x*v.y - this.y*v.x;
+    },
+    /**
+     * vector addition
+     * @returns {object} v2
+     * @param {object} v - other vector.
+     * @example
+     * const u = v2(3,4);
+     * u.add({x:2,y:1});    // {x:5,y:5}
+     */
+    add(v) {
+        return v2.create({x:this.x+v.x,y:this.y+v.y});
+    },
+    /**
+     * vector subtraction
+     * @returns {object} v2
+     * @param {object} v - other vector.
+     * @example
+     * const u = v2(3,4);
+     * u.sub({x:2,y:1});    // {x:1,y:3}
+     */
+    sub(v) {
+        return v2.create({x:this.x-v.x,y:this.y-v.y});
+    },
+    /**
+     * vector scaling
+     * @returns {object} v2
+     * @param {number} [s=1] - scale factor.
+     * @example
+     * const u = v2(3,4);
+     * u.scl(2);    // {x:6,y:8}
+     */
+    scl(s=1) { 
+        return v2.create({x:this.x*s, y:this.y*s});
+    },
+    /**
+     * vector rotation
+     * @returns {object} v2
+     * @param {number} [w=0] - rotation  angle [rad].
+     * @example
+     * let u = v2(3,4);
+     * u.rot(Math.PI/2);    // {x:-4,y:3}
+     */
+    rot(w=0) { 
+        let cw=Math.cos(w), sw=Math.sin(w); 
+        return v2.create({x:cw*this.x-sw*this.y,y:sw*this.x+cw*this.y}); 
+    },
+    /**
+     * vector similarity transform
+     * @returns {object} v2
+     * @param {number} lam - first transform factor.
+     * @param {number} mu  - second transform factor.
+     * @example
+     * const u = v2(3,4);
+     * u.simtrf(1,2);                 // same as ...
+     * u.scl(1).add(u.tilde.scl(2))   // ...
+     */
+    simtrf(lam=1,mu=0) {
+        return v2.create({ x: lam*this.x - mu*this.y, y: lam*this.y + mu*this.x });
+    },
+    /**
+     * inplace tilde (orthogonalized) vector
+     * @returns {object} this
+     */
+    itilde()  { let x = -this.y; this.y = this.x; this.x = x; return this; },
+    /**
+     * inplace negate vector
+     * @returns {object} this
+     */
+    ineg()  { this.x = -this.x; this.y = -this.y; return this; },
+    /**
+     * inplace invert vector
+     * @returns {object} this
+     */
+    iinv()  { const rr = this.x**2 + this.y**2; if (rr) { this.x /= rr; this.y /= rr; } return this; },
+    /**
+     * inplace rotate vector
+     * @returns {object} this
+     * @param {number} [w=0] - rotation angle [rad].
+     */
+    irot(w=0) { const cw=Math.cos(w), sw=Math.sin(w), x=this.cx*cw-this.sy*sw; this.y=this.x*sw+this.y*cw; this.x=x; return this; },
+    /**
+     * inplace scale vector
+     * @returns {object} this
+     * @param {number} [s=1] - scale factor.
+     */
+    iscl(s=1) { this.x *= s; this.y *= s; return this; },
+    /**
+     * inplace add vector
+     * @returns {object} this
+     * @param {object} v - other vector.
+     */
+    iadd(v) { this.x += v.x; this.y += v.y; return this; },
+    /**
+     * inplace subtract vector
+     * @returns {object} this
+     * @param {object} v - other vector.
+     */
+    isub(v) { this.x -= v.x; this.y -= v.y; return this; },
+    /**
+     * inplace similarity transform vector
+     * @returns {object} this
+     * @param {number} [lam=1] - first transform factor.
+     * @param {number} [mu=0]  - second transform factor.
+     */
+    isimtrf(lam=1,mu=0) {
+        const x = lam*this.x - mu*this.y; 
+        this.y  = lam*this.y + mu*this.x; 
+        this.x  = x; 
+        return this;
+    },
+    /**
+     * constraining methods
+     */
+    /**
+     * Adjust magnitude of this vector with respect to `ratio` to vector `v`.
+     * @returns {object} this
+     * @param {object} v - other vector.
+     * @param {number} [ratio=1] - magnitude ratio .
+     */
+    cstrLen(v,ratio=1) {
+        return this.scl(Math.hypot(v.x,v.y)/Math.hypot(this.x,this.y)*ratio);
+    },
+    /**
+     * Keep relative angle to vector `v` constant.
+     * @returns {object} this
+     * @param {object} v - other vector.
+     * @param {number} [w=0]  - angle in radians.
+     */
+    cstrAng(v,w=0) {
+        const ratio = this.r/v2.r(v), 
+              lam = Math.cos(w)*ratio,
+              mu  = Math.sin(w)*ratio;
+        const x = lam*v.x - mu*v.y; 
+        this.y  = lam*v.y + mu*v.x; 
+        this.x  = x;
+        return this;
+    },
+    /**
+     * formatted output string of vector '{x,y,r,w}'.
+     * @returns {string}
+     */
+    toString() { return `{x:${this.x},y:${this.y},r:${this.r},w:${180/Math.PI*this.w}}`; }
+}
+
+// redundancies ...
+v2.prototype.perp = v2.prototype.symp;
+
+// statics ...
+/**
+ * create a v2 vector (internal use only).
+ * @private
+ * @returns {object} v2
+ */
+v2.create = function create(v) { return Object.create(v2.prototype, Object.getOwnPropertyDescriptors(v)); }
 
 /**
- * Null vector.
+ * constant zero v2 vector (freezed).
  */
-v2.zero = Object.create(null, {x:{value:0},y:{value:0}});  // non-modifiable null vector ...
+v2.zero  = v2.create({x:0,y:0}).freeze()
 /**
- * Epsilon (`1.49e-8`) to test null vectors and unit vectors against.
+ * constant x-unit v2 vector (freezed).
  */
-v2.EPS = Math.sqrt(Number.EPSILON);
+v2.xunit = v2.create({x:1,y:0}).freeze()
 /**
- * Test for zero vector.<br>
- * `u === 0`
- * @method v2.isZero
- * @param {v2} u - 2D cartesian vector
- * @return {boolean} is zero vector.
- * @example
- * var u1 = v2(3,4), u2 = {x:-3,y:-4};
- * v2.isZero(v2.add(u1,u2);   // true
- * v2.isZero(v2.sub(u1,u2);   // false
+ * constant y-unit v2 vector (freezed).
  */
-v2.isZero = function(u)  { 
-   return u.x === 0 && u.y === 0;
-};
-/**
- * Equality of two vectors.
- * `u === v`
- * @param {v2} u 2D cartesian vector
- * @param {v2} v 2D cartesian vector
- * @return {boolan} equality.
- * @example
- * var u1 = v2(3,4), u2 = v2(1,2), u3 = {x:3,y:4};
- * v2.isEq(u1,u2);       // false
- * v2.isEq(u1,u3);       // true
- */
-v2.isEq = function(u,v) {
-   return u.x === v.x && u.y === v.y;
-};
-/**
- * Test, if a vector -- or the difference of two vectors -- is smaller than `v2.EPS`.<br>
- * `|u - v| < v2.EPS` 
- * @param {v2} u Vector to test.
- * @param {v2|undefined} v Vector to build the difference with u [optional].
- * @returns {boolean} nearly equal or zero.
- * @example
- * var u1 = v2(1e-10,2e-9), u2 = {x:3e-9,y:-4e-11};
- * v2.isEps(u1);         // true
- * v2.isEps(u1,u2);      // true, with difference
- *                       // {x:-2.9e-9, y:2.04e-9} 
- */
-v2.isEps = function(u,v) {
-   return Math.abs(v ? u.x-v.x : u.x) < v2.EPS 
-       && Math.abs(v ? u.y-v.y : u.y) < v2.EPS;
-};
-/**
- * Test, if vector is a unit vector.<br>
- * `|u| === 1` 
- * @param {v2} u Vector to test.
- * @returns {boolean}
- * @example
- * var u1 = {x:3/5,y:4/5}, u2 = v2(3,-4);
- * v2.isUnit(u1);        // true
- * v2.isUnit(u2);        // false
- */
-v2.isUnit = function(u) {
-   return u.x*u.x + u.y*u.y - 1 < v2.EPS;
-};
-/**
- * Test, if vector has cartesian coordinates `{x,y}`.
- * @param {v2} u Vector to test.
- * @returns {boolean}
- * @example
- * var u1 = v2(3,4), u2 = {r:5,w:0.9273}, 
- *     u3 = {r:5,w:0.9273,x:3,y:4};
- * v2.isCartesian(u1);   // true
- * v2.isCartesian(u2);   // false
- * v2.isCartesian(u3);   // true
- */
-v2.isCartesian = function(u) {
-   return "x" in u && "y" in u;
-};
-/**
- * Test, if vector has polar coordinates `{r,w}`.
- * @param {v2} u Vector to test.
- * @returns {boolean}
- * @example
- * var u1 = v2(3,4), u2 = {r:5,w:0.9273}, 
- *     u3 = {r:5,w:0.9273,x:3,y:4};
- * v2.isPolar(u1);   // false
- * v2.isPolar(u2);   // true
- * v2.isPolar(u3);   // true
- */
-v2.isPolar = function(u) {
-   return "r" in u && "w" in u;
-};
-/**
- * Length / Euclidean Norm of vector.<br>
- * `len = sqrt(u.x^2 + u.x^2)`
- * @param {v2} u 2D cartesian vector
- * @return {number} length of vector.
- * @example
- * var u = {x:3,y:4};
- * v2.len(u);   // 5
- */
-v2.len = function(u)  { 
-   return Math.hypot(u.x,u.y);
-};
-/**
- * Squared Length of vector.<br>
- * `u*u = u.x^2 + u.x^2`
- * @param {v2} u 2D cartesian vector
- * @return {number} squared length of vector.
- * @example
- * var u = v2(3,4);
- * v2.sqr(u);   // 25
- */
-v2.sqr = function(u)  { 
-   return u.x*u.x + u.y*u.y; 
-};
-/**
- * Angle from u to v or from positive x-axis
- * to `u` - if `v` is missing. [radians].<br>
- * `atan(~u*v)/(u*v)`
- * @param {v2} u 2D cartesian vector
- * @param {v2} [v=undefined] 2D cartesian vector 
- * @return {number} angle from `u` to `v` or from positive x-axis  
- *                  to `u`.
- * @example
- * var u1 = v2(3,4), u2 = v2(-4,3);
- * v2.angle(u1);     // 0.9273
- * v2.angle(u1,u2);  // 1.5708 (pi/2)
- */
-v2.angle = function(u,v) {
-   var t;
-   return v ? Math.atan2(Math.abs(t = u.x*v.y - u.y*v.x) < v2.EPS ? 0 : t, u.x*v.x + u.y*v.y)
-            : Math.atan2(u.y, u.x);
-};
-/**
- * Assign vector u to v.<br>
- * `v = u`
- * @param {v2} u 2D source vector
- * @param {v2|undefined} v 2D destination vector [optional].
- * @return {v2} destination vector o.
- * @example
- * var u1 = v2(3,4), u2 = {x:2,y:1}, u3;
- * v2.copy(u1,u2);    // u2 = {x:3,y:4}
- * u3 = v2.copy(u1);  // u3 = {x:3,y:4}
- */
-v2.copy = function(u,v) {
-   if (v) {
-      v.x = u.x||0;
-      v.y = u.y||0;
-   }
-   else
-     v = {x:u.x,y:u.y};
-   return v;
-};
-/**
- * Negative vector.<br>
- * `-u`
- * @param {v2} u 2D cartesian vector
- * @return {v2} 2D cartesian vector negated.
- * @example
- * v2.neg({x:2,y:1});  // {x:-2,y:-1}
- */
-v2.neg = function(u) {
-   return {x:-u.x,y:-u.y};
-};
-/**
- * Orthogonal vector - rotated by 90 degrees counterclockwise. Also called *perp operator*.<br>
- * `~u = {x:-u.y,y:u.x}`
- * @param {v2} u 2D cartesian vector
- * @return {v2} 2D orthogonal vector.
- * @example
- * v2.tilde({x:3,y:4});  // {x:-4,y:3}
- */
-v2.tilde = function(u) {
-   return {x:-u.y,y:u.x};
-};
-/**
- * Unit vector of a vector.<br>
- * `u / |u|`
- * @param {v2} u 2D cartesian vector
- * @return {v2} 2D unit cartesian vector.
- * @example
- * v2.unit({x:3,y:4});  // {x:0.6,y:0.8}
- */
-v2.unit = function(u) {
-   var len = Math.hypot(u.x,u.y), invlen = Math.abs(len) < v2.EPS ? 0 : 1/len; 
-   return {x:u.x*invlen,y:u.y*invlen}; 
-};
-/**
- * Cartesian vector from polar vector.<br>
- * If argument is already cartesian it is simply returned.<br>
- * `{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
- * @param {v2} u 2D polar vector `{r,w}`.
- * @return {object} 2D cartesian vector `{x,y}`.
- * @example
- * var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
- * v2.cartesian(u1);       // {x:3,y:4};
- * v2.cartesian(u2);       // {x:3,y:4};
- */
-v2.cartesian = function(u) {
-   return "x" in u && "y" in u 
-        ? {x:u.x,y:u.y}
-        : {x:u.r*Math.cos(u.w),y:u.r*Math.sin(u.w)};
-};
-/**
- * Polar vector from a cartesian vector.<br>
- * If argument is already polar it is simply returned.<br>
- * `{r:sqrt(u.x^2+u.y^2),w:atan2(u.y,u.x)}`
- * @param {v2} u 2D cartesian vector `{x,y}`.
- * @return {object} 2D polar vector `{r,w}`.
- * @example
- * var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
- * v2.polar(u1);       // {r:5,w:0.9273};
- * v2.polar(u2);       // {r:5,w:0.9273};
- */
-v2.polar = function(u) {
-   return "r" in u && "w" in u 
-        ? {r:u.r,w:u.w}
-        : {r:Math.hypot(u.x,u.y),w:Math.atan2(u.y,u.x)}; 
-};
-/**
- * Convert cartesian vector to polar vector.<br>
- * @deprecated Use `v2.polar` instead.
- * @param {v2} u 2D cartesian vector
- * @return {object} 2D polar vector.
- */
-v2.toPolar = function(u) {
-   return {r:Math.hypot(u.x,u.y),w:Math.atan2(u.y,u.x)}; 
-};
-/**
- * Convert polar vector {r,w} to cartesian vector.<br>
- * @deprecated Use `v2.cartesian` instead.<br>
- * `{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
- * @param  {object} u 2D polar vector.
- * @return {v2} 2D cartesian vector
- */
-v2.fromPolar = function(u) {
-   return {x:u.r*Math.cos(u.w),y:u.r*Math.sin(u.w)};
-};
-/**
- * Sum of two vectors.<br>
- * `u + v`
- * @param {v2} u 2D cartesian vector
- * @param {v2} v 2D cartesian vector
- * @return {v2} 2D cartesian vector sum.
- * @example
- * var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
- * v2.sum(u1,u2);      // {x:4,y:6};
- */
-v2.sum = function(u,v) { 
-   return {x:u.x+v.x,y:u.y+v.y}; 
-};
-/**
- * Difference of two vectors.<br>
- * `u - v`
- * @param {v2} u 2D cartesian vector
- * @param {v2} v 2D cartesian vector
- * @return {v2} 2D cartesian vector difference.
- * @example
- * var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
- * v2.dif(u1,u2);      // {x:2,y:2};
- */
-v2.dif = function(u,v) {
-   return {x:u.x-v.x,y:u.y-v.y}; 
-};
-/**
- * Scalar (dot) product of two vectors (*inner product*).<br>
- * `u * v = u.x*v.x + u.y*v.y`
- * @param {v2} u 2D cartesian vector
- * @param {v2} v 2D cartesian vector
- * @return {number} scalar product.
- * @example
- * var u1 = {x:3,y:4}, u2 = {x:1,y:2}, u3 = {x:-4,y:3}; 
- * v2.dot(u1,u2);      // 11;
- * v2.dot(u1,u3);      // 0;
- * v2.dot(u2,u3);      // 2;
- */
-v2.dot = function(u,v) { 
-   return u.x*v.x + u.y*v.y; 
-};
-/**
- * perp dot product of two 2D cartesian vectors (*outer product* or *area product*).<br>
- * `~u * v = u.x*v.y - u.y*v.x`<br>
- * Same as : `v2.dot(v2.tilde(u),v)`<br>
- * Result is equal to the value of the z-coordinate of the
- * vector from the cross product of the corresponding 3D vectors.
- * @param {v2} u - 2D cartesian vector
- * @param {v2} v - 2D cartesian vector
- * @return {number}  perp dot product (`~u*v`).
- * @example
- * var u1 = {x:3,y:4}, u2 = {x:6,y:8}, u3 = {x:1,y:2}; 
- * v2.perp(u1,u2);      // 0;
- * v2.perp(u1,u3);      // 2;
- * v2.perp(u2,u3);      // 4;
- */
-v2.perp = function(u,v) { 
-   return u.x*v.y - u.y*v.x; 
-};
-/**
- * Scale a vector by multiplication.<br>
- * `u*s`
- * @param {v2} u 2D cartesian vector
- * @param {number} Scaling factor
- * @return {v2} 2D cartesian vector scaled.
- * @example
- * v2.scl({x:3,y:4},2);      // {x:6,y:8};
- * v2.scl({x:3,y:4},-1);     // {x:-3,y:-4};
- */
-v2.scl = function(u,s) {
-   return {x:s*u.x,y:s*u.y};
-};
-/**
- * Rotate a vector by angle w [radians].<br>
- * @param {v2} u 2D cartesian vector
- * @param {number} [w=0] Rotation angle in radians
- * @return {v2} 2D cartesian vector rotated.
- * @example
- * v2.rot({x:3,y:4},-Math.PI/2);   // {x:4,y:-3};
- */
-v2.rot = function(u,w) {
-   var s = Math.sin(w||0), c = Math.cos(w||0);
-   return {x:c*u.x-s*u.y,y:s*u.x+c*u.y};
-};
-/**
- * Transform a vector by 2x3 matrix (SVG). <br>
- * <code>[a c e] [x] = [x']</code><br>
- * <code>[b d f] [y] = [y']</code><br>
- * <code>[0 0 1] [1] = [1]</code>
- * @param {v2} u 2D cartesian vector
- * @param {number} a m11
- * @param {number} b m21
- * @param {number} c m12
- * @param {number} d m22
- * @param {number} [e=0] x-translation
- * @param {number} [f=0] y-translation
- * @return {v2} 2D cartesian vector transformed.
- * @example
- * v2.trf({x:3,y:4},2,0,0,1,4,5);   // {x:10,y:9};
- */
-v2.trf = function(u,a,b,c,d,e,f) {
-   return { x: a*u.x + c*u.y + (e||0),
-            y: b*u.x + d*u.y + (f||0) };
-};
-/**
- * Apply similarity transformation to a vector. <br>
- * `a*u + b*~u`
- * @param {v2} u 2D cartesian vector
- * @param {number} [a=1] Scale u by a.
- * @param {number} [b=0] Scale ~u by b.
- * @return {v2} 2D cartesian vector transformed.
- * @example
- * v2.simtrf({x:3,y:4},2,1);   // {x:2,y:11};
- */
-v2.simtrf = function(u,a,b) {
-   a = a||1, b = b||0;
-   return { x: a*u.x - b*u.y, y: a*u.y + b*u.x };
-};
-/**
- * Inplace convert polar vector to cartesian vector.<br>
- * `{x:u.r*cos(u.w),y:u.r*sin(u.w)}`
- * @param {v2} u 2D polar vector.
- * @return {object} 2D cartesian vector.
- * @example
- * var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
- * v2.icartesian(u1);       // u1 = {x:3,y:4};
- * v2.icartesian(u2);       // u2 = {x:3,y:4};
- */
-v2.icartesian = function(u) {
-   if ("r" in u && "w" in u) {  // is polar ..
-      u.x = u.r*Math.cos(u.w);
-      u.y = u.r*Math.sin(u.w);
-      delete u.r;               // avoid redundancy ...
-      delete u.w;
-   }
-   return u;
-};
-/**
- * Inplace convert cartesian vector to polar vector.<br>
- * `{r:sqrt(u.x^2+u.y^2),w:atan2(u.y,u.x)}`
- * @param {v2} u 2D cartesian vector
- * @return {object} 2D polar vector.
- * @example
- * var u1 = {r:5,w:0.9273}, u2 = {x:3,y:4}; 
- * v2.ipolar(u1);       // u1 = {r:5,w:0.9273};
- * v2.ipolar(u2);       // u2 = {r:5,w:0.9273};
- */
-v2.ipolar = function(u) {
-   if ("x" in u && "y" in u) {  // is cartesian ..
-      u.r = Math.hypot(u.x,u.y);
-      u.w = Math.atan2(u.y,u.x);
-      delete u.x;               // avoid redundancy ...
-      delete u.y;
-   } 
-   return u;
-};
-/**
- * Inplace negate a vector.<br>
- * `u = -u`
- * @param {v2} u 2D cartesian vector
- * @return {v2} 2D vector u negated.
- * @example
- * let u = {x:2,y:1};
- * v2.ineg(u);  // u = {x:-2,y:-1}
- */
-v2.ineg = function(u) {
-   u.x = -u.x;
-   u.y = -u.y;
-   return u;
-};
-/**
- * Inplace create orthogonal vector - rotated by 90 degrees counterclockwise.<br>
- * `u = {x:-u.y,y:u.x}`
- * @param {v2} u 2D cartesian vector
- * @return {v2} orthogonal cartesian vector u.
- * @example
- * let u = {x:3,y:4};
- * v2.tilde(u);  // u = {x:-4,y:3}
- */
-v2.itilde = function(u) {
-   var x = u.x;
-   u.x = -u.y;
-   u.y =  x;
-   return u;
-};
-/**
- * Inplace create unit vector of a vector.<br>
- * `u = u / |u|`
- * @param {v2} u 2D cartesian vector
- * @return {v2} 2D unit cartesian vector.
- * @example
- * let u = {x:3,y:4};
- * v2.unit(u);  // u = {x:0.6,y:0.8}
- */
-v2.iunit = function(u)  {
-   var len = Math.hypot(u.x,u.y), invlen = Math.abs(len) < v2.EPS ? 0 : 1/len; 
-   u.x *= invlen;
-   u.y *= invlen;
-   return u;
-};
-/**
- * Add vector v to u.<br>
- * `u += v`
- * @param {v2} u 2D cartesian vector
- * @param {v2} v 2D cartesian vector
- * @return {v2} Result vector u.
- * @example
- * var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
- * v2.add(u1,u2);      // u1 = {x:4,y:6};
- */
-v2.add = function(u,v) { 
-   u.x += v.x;
-   u.y += v.y;
-   return u;
-};
-/**
- * Alias for `v2.add`,
- */
-v2.isum = v2.add;
-/**
- * Subtract vector v from u.<br>
- * `u -= v`
- * @param {v2} u 2D cartesian vector
- * @param {v2} v 2D cartesian vector
- * @return {v2} result vector u.
- * @example
- * var u1 = {x:3,y:4}, u2 = {x:1,y:2}; 
- * v2.idif(u1,u2);      // u1 = {x:2,y:2};
- */
-v2.sub = function(u,v) {
-   u.x -= v.x;
-   u.y -= v.y;
-   return u;
-};
-/**
- * @property Alias for `v2.sub`.
- */
-v2.idif = v2["sub"];
-/**
- * Inplace scale a vector.<br>
- * `u *= s`
- * @param {v2} u 2D cartesian vector
- * @param {number} Scaling factor
- * @return {v2} cartesian vector u scaled.
- * @example
- * let u = {x:3,y:4};
- * v2.scl(u,2);      // u = {x:6,y:8};
- */
-v2.iscl = function(u,s) { 
-   u.x *= s;
-   u.y *= s;
-   return u;
-};
-/**
- * Inplace rotate a vector by angle w [radians].<br>
- * @param {v2} u 2D cartesian vector
- * @param {number} [w=0] Rotation angle in radians.
- * @return {v2} vector u rotated.
- * @example
- * let u = {x:3,y:4};
- * v2.rot(u,-Math.PI/2);   // u = {x:4,y:-3};
- */
-v2.irot = function(u,w) {
-   var s = Math.sin(w), c = Math.cos(w),
-       x = c*u.x-s*u.y;
-   u.y = s*u.x+c*u.y;
-   u.x = x;
-   return u;
-};
-/**
- * Inplace transform a vector by 2x3 matrix (SVG). <br>
- * <code>[a c e] [x] = [x']</code><br>
- * <code>[b d f] [y] = [y']</code><br>
- * <code>[0 0 1] [1] = [1]</code>
- * @param {v2} u 2D cartesian vector
- * @param {number} a m11
- * @param {number} b m21
- * @param {number} c m12
- * @param {number} d m22
- * @param {number} e x-translation [optional]
- * @param {number} f y-translation [optional]
- * @return {v2} 2D cartesian vector transformed.
- * @example
- * let u = {x:3,y:4};
- * v2.trf(u,2,0,0,1,4,5);   // u = {x:10,y:9};
- */
-v2.itrf = function(u,a,b,c,d,e,f) {
-   var x   = a*u.x + c*u.y + (e||0);
-       u.y = b*u.x + d*u.y + (f||0);
-       u.x = x;
-   return u;
-};
-/**
- * Apply inplace similarity transformation to a vector. <br>
- * `u = a*u + b*~u`
- * @param {v2} u 2D cartesian vector
- * @param {number} a Scale u by a.
- * @param {number} b Scale ~u by b.
- * @return {v2} 2D cartesian vector transformed.
- * @example
- * let u = {x:3,y:4};
- * v2.simtrf(u,2,1);   // u = {x:2,y:11};
- */
-v2.isimtrf = function(u,a,b) {
-   var x   = (a||1)*u.x - (b||0)*u.y;
-       u.y = (a||1)*u.y + (b||0)*u.x;
-       u.x = x;
-   return u;
-};
+v2.yunit = v2.create({x:0,y:1}).freeze()
 
 /**
- * String of vector. Format: `(x,y)`.
- * @param {v2} u 2D cartesian vector
- * @param {v2} n decimal places. [optional]
- * @return {string}.
- * @example
- * let u1 = {x:3,y:4}, u2 = {x:1.23456,y:78.90123} 
- * v2.str(u1);     // "(3,4)";
- * v2.str(u2,3);   // "(1.235,78.901)";
- * v2.str(u2,0);   // "(1,79)";
- * v2.str(u2);     // "(1.23456,78.90123)";
+ * Set coordinates of (plain) vector `a` to coordinates of (plain) vector `b`.
+ * @param {object} a - (plain) vector.
+ * @param {object} b - (plain) vector.
+ * @returns {object} - vector a.
  */
-v2.str = function(u,n) {
-    return n > 0   ? "("+u.x.toFixed(n)+","+u.y.toFixed(n)+")"
-         : n === 0 ? "("+u.x.toFixed(0)+","+u.y.toFixed(0)+")"
-         : "("+u.x+","+u.y+")";
+v2.set = (a,b) => { a.x = b.x; a.y = b.y; return a; }
+/**
+ * Get magnitude of (plain) vector `v`.
+ * @param {object} v - (plain) vector.
+ * @returns {number}
+ */
+v2.len =
+v2.r = (v) => Math.hypot(v.x,v.y)
+/**
+ * Set magnitude of (plain) vector `v`, while keeping angle `w` constant.
+ * @param {object} v - (plain) vector.
+ * @param {number} r - magnitude.
+ * @returns {object}
+ */
+v2.set_len =
+v2.set_r = (v,r) => { const q = Math.hypot(v.x,v.y); v.x *= r/q; v.y *= r/q; return v; }
+/**
+ * Get angle of (plain) vector `v` in [rad].
+ * @param {object} v - (plain) vector.
+ * @returns {number}
+ */
+v2.angle
+v2.w = (v) => Math.atan2(v.y,v.x)
+ /**
+ * Set angle of (plain) vector `v`, while keeping magnitude `r` constant.
+ * @param {object} v - (plain) vector.
+ * @param {number} w - angle.
+ * @returns {object}
+ */
+v2.set_angle =
+v2.set_w = (v,w) => { const r = Math.hypot(v.x,v.y); v.x = r*Math.cos(w); v.y = r*Math.sin(w); }
+/**
+ * Get (plain) unit vector of (plain) vector `v`.
+ * @param {object} v - (plain) vector.
+ * @returns {object}
+ */
+ v2.unit = (v) => { const r = Math.hypot(v.x,v.y); return r ? {x:v.x/r, y:v.y/r} : v; }
+ /**
+  * Set unit vector of (plain) vector `v` to unit vector of (plain) vector `u`, while preserving its magnitude.
+  * @param {object} v - (plain) vector to modify.
+  * @param {object} u - vector to lend unit vector from.
+  * @returns {object} - modified vector `v`.
+  */
+ v2.set_unit = (v,u) => { const r_ru = Math.hypot(v.x,v.y)/Math.hypot(u.x,u.y); return {x:u.x*r_ru, y:u.y*r_ur}; }
+/**
+ * Test for zero vector within range `Number.EPSILON`.
+ * @type {boolean}
+ * @example
+ * v2.isZero({x:3,y:4}) // false
+ */
+v2.isZero = (v) => Math.abs(v.x) < Number.EPSILON && Math.abs(v.y) < Number.EPSILON
+/**
+ * Test for unit vector within range `Number.EPSILON`.
+ * @type {boolean}
+ * @example
+ * const u = v2(3,4), u2 = {x:-3,y:-4};
+ * v2(3,4).isZero;      // false
+ * v2(0.6,0.8).isunit;  // true
+ */
+v2.isUnit = (v) => Math.abs(this.x**2 + this.y**2 - 1) < Number.EPSILON
+/**
+ * Get clone of (plain) vector `v`.
+ * @param {object} v - (plain) vector.
+ * @returns {object} v2
+ */
+v2.clone = (v) => { return {x:v.x, y:v.y} }
+/**
+ * Get magnitude squared of (plain) vector `v`.
+ * @param {object} v - (plain) vector.
+ * @returns {number}
+ */
+v2.sqr = (v) => v.x**2 + v.y**2
+/**
+ * Get orthogonal vector from (plain) vector `v`.
+ * @param {object} v - plain vector.
+ * @returns {object} plain
+ */
+v2.perp =
+v2.tilde = (v) => { return {x:-v.y,y:v.x}; }
+/**
+ * Get negative vector from (plain) vector `v`.
+ * @param {object} v - plain vector.
+ * @returns {object} plain
+ */
+ v2.neg = (v) => { return {x:-v.x,y:-v.y}; }
+/**
+ * Get inverse vector from (plain) vector `v`.
+ * @param {object} v - plain vector.
+ * @returns {object} plain
+ */
+v2.inv = (v) => { const rr = this.x**2 + this.y**2; return rr ? {x:v.x/rr,y:v.y/rr} : v; }
+/**
+ * Test two (plain) vectors for equality.
+ * @param {object} a - (plain) vector.
+ * @param {object} b - (plain) vector.
+ * @returns {boolean}
+ */
+v2.equals = (a,b) => Math.abs(a.x-b.x) < Number.EPSILON && Math.abs(a.y-b.y) < Number.EPSILON
+/**
+ * Dot (inner) product of two (plain) vectors.
+ * @param {object} a - (plain) vector.
+ * @param {object} b - (plain) vector.
+ * @returns {number}
+ */
+v2.dot = (a,b) => a.x*b.x + a.y*b.y
+/**
+ * Symplectic (inner) product of two (plain) vectors.
+ * @param {object} a - (plain) vector.
+ * @param {object} b - (plain) vector.
+ * @returns {number}
+ */
+v2.symp = (a,b) => a.x*b.y - a.y*b.x
+/**
+ * Create sum of two (plain) vectors.
+ * @param {object} a - (plain) vector.
+ * @param {object} b - (plain) vector.
+ * @returns {object}
+ */
+v2.sum = (a,b) => { return {x:a.x+b.x, y:a.y+b.y}; }
+/**
+ * Create difference of two (plain) vectors.
+ * @param {object} a - (plain) vector.
+ * @param {object} b - (plain) vector.
+ * @returns {object}
+ */
+v2.dif = (a,b) => { return {x:a.x-b.x, y:a.y-b.y}; }
+/**
+ * Get scaled vector from (plain) vector.
+ * @param {object} v - (plain) vector.
+ * @param {number} s - scaling factor.
+ * @returns {object} v2
+ */
+v2.scl = (v,s=1) => { return {x:s*v.x, y:s*v.y} }
+/**
+ * Get rotateded vector from (plain) vector.
+ * @param {object} v - (plain) vector.
+ * @param {number} w - rotation angle [rad].
+ * @returns {object} v2
+ */
+v2.rot = (v,dw=0) => { 
+    const cw=Math.cos(dw), sw=Math.sin(dw);
+    return {x:cw*v.x-sw*v.y,y:sw*v.x+cw*v.y};
+}
+/**
+ * Similarity transform vector.
+ * @returns {object} 
+ * @param {object} v - (plain) vector.
+ * @param {number} [lam=1] - first transform factor.
+ * @param {number} [mu=0]  - second transform factor.
+ */
+v2.simtrf = (v,lam=1,mu=0) => { return { x: lam*v.x - mu*v.y, y: lam*v.y + mu*v.x }}
+/**
+ * Replace vector `v` by its orthogonal vector.
+ * @param {object} v - plain vector.
+ * @returns {object} plain
+ */
+v2.iperp =
+v2.itilde = (v) => { const x = -v.y; v.y = v.x; v.x = x; return v; } 
+/**
+ * Replace vector `v` by its negative vector.
+ * @param {object} v - plain vector.
+ * @returns {object} v
+ */
+ v2.ineg = (v) => { v.x = -v.x; v.y = -v.y; return v; }
+/**
+ * Replace vector `v` by its inverse vector.
+ * @param {object} v - plain vector.
+ * @returns {object} v
+ */
+v2.iinv = (v) => { const rr = v.x**2 + v.y**2; if (rr) { v.x /= rr; v.y /= rr } return v; }
+/**
+ * Add vector `b` to vector `a`. Returns modified `a`.
+ * @param {object} a - (plain) vector.
+ * @param {object} b - (plain) vector.
+ * @returns {object}
+ */
+v2.iadd =
+v2.isum = (a,b) => { a.x += b.x; a.y += b.y; return v }
+/**
+ * Create difference of two (plain) vectors.
+ * @param {object} a - (plain) vector.
+ * @param {object} b - (plain) vector.
+ * @returns {object} a
+ */
+v2.isub =
+v2.idif = (a,b) => { a.x -= b.x; a.y -= b.y; return v }
+/**
+ * Inplace scale vector `v` by `s`.
+ * @param {object} v - (plain) vector.
+ * @param {number} s - scaling factor.
+ * @returns {object} v
+ */
+v2.iscl = (v,s=1) => { a.x *= s; a.y *= s; return v }
+/**
+ * Inplace rotate vector `v` by `dw`.
+ * @param {object} v - (plain) vector.
+ * @param {number} dw - rotation angle [rad].
+ * @returns {object} v2
+ */
+v2.irot = (v,dw=0) => { 
+    const cw=Math.cos(dw), sw=Math.sin(dw);
+    const x = cw*v.x-sw*v.y;
+    v.y     = sw*v.x+cw*v.y;
+    v.x     = x;
+    return v;
+}
+/**
+ * Similarity transform vector.
+ * @returns {object} 
+ * @param {object} v - (plain) vector.
+ * @param {number} [lam=1] - first transform factor.
+ * @param {number} [mu=0]  - second transform factor.
+ */
+v2.isimtrf = (v,lam=1,mu=0) => {
+    const x = lam*v.x - mu*v.y;
+    v.y     = lam*v.y + mu*v.x;
+    v.x     = x;
+    return v;
+}
+/**
+ * Create a vector with coordinates referencing coordinates of other vector.
+ * @param {object} v - (plain) vector.
+ * @returns {object} v2
+ */
+v2.ref = (v) => { return {get x(){return v.x}, get y(){return v.y},set x(q){v.x=q}, set y(q){v.y=q}}; }
+/**
+ * First (trivial) case of the planar vector triangle equation.
+ * .
+ * @param {object} a - (plain) vector (magnitude and direction modified)
+ * @param {object} b - (plain) vector
+ * @param {object} c - (plain) vector
+ * s. https://www.researchgate.net/publication/330997539_The_Five_Cases_of_the_Planar_Vector_Equation
+ */
+v2.case1 = (a,b,c) => {
+    a.x = b.x + c.x;
+    a.y = b.y + c.y;
+}
+/**
+ * Second case of the planar vector equation.
+ * @param {object} a - (plain) vector (magnitude modified)
+ * @param {object} b - (plain) vector (direction modified)
+ * @param {object} c - (plain) vector
+ * @param {number} sgn - sign of required solution
+ * s. https://www.researchgate.net/publication/330997539_The_Five_Cases_of_the_Planar_Vector_Equation
+ */
+v2.case2 = (a,b,c,sgn) => {
+    const ea = v2.unit(a),
+          sqr = v2.sqr(b) - v2.symp(ea,c)**2;
+    v2.set_r(a, v2.dot(ea,c) + (sgn||1)*Math.sqrt(sqr > 0 ? sqr : 0));
+    v2.cpy(b,v2.sub(a,c));
+}
+/**
+ * Third case of the planar vector equation.
+ * @param {object} a - (plain) vector (magnitude modified)
+ * @param {object} b - (plain) vector (magnitude modified)
+ * @param {object} c - (plain) vector
+ * s. https://www.researchgate.net/publication/330997539_The_Five_Cases_of_the_Planar_Vector_Equation
+ */
+v2.case3 = (a,b,c) => {
+    const ea = v2.unit(a), eb = v2.unit(b), den = v2.symp(ea,eb);
+    a.r = v2.symp(c,eb)/den;
+    b.r = v2.symp(c,ea)/den;
+}
+/**
+ * Fourth case of the planar vector equation.
+ * @param {object} a - (plain) vector (direction modified)
+ * @param {object} b - (plain) vector (direction modified)
+ * @param {object} c - (plain) vector
+ * s. https://www.researchgate.net/publication/330997539_The_Five_Cases_of_the_Planar_Vector_Equation
+ * @returns {string}
+ */
+v2.case4 = function case4(a,b,c,sgn) {
+    const cc = v2.sqr(c), aa_cc = v2.sqr(a)/cc,
+          lam = (aa_cc - v2.sqr(b)/cc + 1)/2,
+          sqr = aa_cc - lam*lam,
+          mu = sqr > 0 ? (sgn||1)*Math.sqrt(sqr) : 0;
+    
+    v2.set(a, v2.simtrf(c, lam, mu));
+    v2.set(b, v2.simtrf(c, lam-1, mu));
+}
+/**
+ * Fifth case of the planar vector equation.
+ * Direction of `a` and direction of `b` is modified.
+ * s. https://www.researchgate.net/publication/330997539_The_Five_Cases_of_the_Planar_Vector_Equation
+ * @returns {string}
+ */
+v2.case5 = function case5(a,b,c,sgn) {
+    const ar = (sgn||1)*Math.sqrt(v2.sqr(c) - v2.sqr(b));
+    v2.set(a, v2.simtrf(c, ar, b.r).scl(ar/v2.sqr(c)));
+    v2.set_unit(b, v2.tilde(a));
 }
 
 // use it with node.js ... ?

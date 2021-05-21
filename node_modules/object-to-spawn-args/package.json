@@ -1,0 +1,19 @@
+{
+  "name": "object-to-spawn-args",
+  "version": "1.1.1",
+  "description": "Converts an object to a child_process.spawn args array",
+  "repository": "https://github.com/75lb/object-to-spawn-args",
+  "main": "lib/object-to-spawn-args.js",
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "keywords": [
+    "child_process",
+    "spawn"
+  ],
+  "author": "Lloyd Brookes",
+  "license": "MIT",
+  "devDependencies": {
+    "tape": "^4.2.2"
+  }
+}

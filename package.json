@@ -1,25 +1,27 @@
 {
   "name": "v2d",
-  "version": "1.3.8",
-  "description": "v2 - a minimalistic 2d vector class",
+  "version": "2.0.0",
+  "description": "v2 -  A Minimalistic 2D Vector Class",
   "keywords": [
     "vector",
     "2d",
-    "algebra",
-    "math"
+    "javascript"
   ],
   "main": "v2.js",
+  "microjam": {},
   "scripts": {
-    "test": "node ./tests/tests.js",
-    "minify": "uglifyjs --comments -o ./v2.min.js ./v2.js",
-    "jsdoc": "jsdoc2md v2.js > /tmp/out.md"
+    "build": "npm run minify && npm run jsdoc",
+    "minify": "uglifyjs ./v2.js -o ./dist/v2.min.js --comments",
+    "jsdoc": "jsdoc2md ./v2.js > ./docs/api/v2.md"
   },
   "author": "Stefan Goessner <fang03@web.de>",
   "repository": {
     "type": "git",
-    "url": "git://github.com/goessner/v2.git"
+    "url": "https://github.com/goessner/v2.git"
   },
   "license": "MIT",
   "devDependencies": {
+    "jsdoc-to-markdown": "^5.0.3",
+    "uglify-es": "^3.3.9"
   }
 }

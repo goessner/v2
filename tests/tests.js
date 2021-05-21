@@ -22,18 +22,19 @@ describe("analyse", {
 		this.expect(z.x === 0 && z.y === 0, true);
 	},
 	'is zero vector': function() {
-		var a = {x:0,y:0};
+		var a = {x:0,y:0}, b = {x:0,y:1e-16};
 		this.expect(v2.isZero(a), true);
+		this.expect(v2.isZero(b), false);
 	},
 	'is equal': function() {
 		var a = {x:2,y:3}, b = {x:3,y:4}, c = {x:3,y:4};
-		this.expect(v2.isEq(a,b), false);
-		this.expect(v2.isEq(b,c), true);
+		this.expect(v2.equals(a,b), false);
+		this.expect(v2.equals(b,c), true);
 	},
-	'is nearly equal or nearly zero': function() {
-		var a = {x:3,y:4+1e-17}, b = {x:3,y:4}, c = {x:1e-17,y:1e-18};
-		this.expect(v2.isEps(a,b), true);
-		this.expect(v2.isEps(c), true);
+	'is nearly equal': function() {
+		var a = {x:3,y:4+1e-17}, b = {x:3,y:4}, c = {x:3,y:4+1e-16};
+		this.expect(v2.equals(a,b), true);
+		this.expect(v2.equals(b,c), false);
 	},
 	'sqr': function() {
 		var a = {x:3,y:4};
@@ -42,6 +43,7 @@ describe("analyse", {
 	'len': function() {
 		var a = {x:3,y:4};
 		this.expect(v2.len(a), 5);
+		this.expect(v2.r(a), 5);
 	},
 	'angle to x-axis': function() {
 		var a = {x:3,y:4};
