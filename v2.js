@@ -16,7 +16,11 @@
  *       u3 = {x:3,y:4};     // ... to simple object notation.
  */
 function v2(v,y=undefined) {
-    if (Object.getPrototypeOf(v) === v2.prototype)  // `v` is already of type `v2` ...
+    if (v === undefined)
+        return v2.create({x:0,y:0});
+    else if (typeof v === 'number' && typeof y === 'number')
+        return v2.create({x:v,y});
+    else if (Object.getPrototypeOf(v) === v2.prototype)  // `v` is already of type `v2` ...
         return v;
     else if (Object.getPrototypeOf(v) === Object.prototype) { // do not modify custom objects ...
         const {x, y, r, w, cw, sw, ...rest} = v;
@@ -51,10 +55,12 @@ function v2(v,y=undefined) {
         }
         return v2.create({x:X,y:Y,...rest});
     }
-    else if (typeof v === 'number' && typeof y === 'number')
-        return v2.create({x:v,y});
-    else
-        return v2.create({x:0,y:0});
+    else if (typeof v === 'function' && typeof y === 'function') {
+        return Object.create(v2.prototype, {
+                x: { get: v, enumerable: true, configurable: true, writabel: false },
+                y: { get: y, enumerable: true, configurable: true, writabel: false }
+        });
+    }
 }
 v2.prototype = {
     /**
@@ -142,6 +148,7 @@ v2.prototype = {
      * @type {object} v2
      */
     get clone() { return v2.create({x:this.x,y:this.y}); },
+    get cpy() { return v2.create({x:this.x,y:this.y}); },    // depricated, use `clone`
     /**
      * Magnitude squared.
      * @type {number}
@@ -446,7 +453,7 @@ v2.set_w = (v,w) => { const r = Math.hypot(v.x,v.y); v.x = r*Math.cos(w); v.y = 
   * @param {object} u - vector to lend unit vector from.
   * @returns {object} - modified vector `v`.
   */
- v2.set_unit = (v,u) => { const r_ru = Math.hypot(v.x,v.y)/Math.hypot(u.x,u.y); return {x:u.x*r_ru, y:u.y*r_ur}; }
+ v2.set_unit = (v,u) => { const r_ru = Math.hypot(v.x,v.y)/Math.hypot(u.x,u.y); v.x = u.x*r_ru;  v.y = u.y*r_ru; }
 /**
  * Test for zero vector within range `Number.EPSILON`.
  * @type {boolean}
@@ -689,9 +696,9 @@ v2.case4 = function case4(a,b,c,sgn) {
  * s. https://www.researchgate.net/publication/330997539_The_Five_Cases_of_the_Planar_Vector_Equation
  * @returns {string}
  */
-v2.case5 = function case5(a,b,c,sgn) {
-    const ar = (sgn||1)*Math.sqrt(v2.sqr(c) - v2.sqr(b));
-    v2.set(a, v2.simtrf(c, ar, b.r).scl(ar/v2.sqr(c)));
+v2.case5 = function case5(a,b,c,sgn=1) {
+    const br = sgn*Math.sqrt(v2.sqr(c) - v2.sqr(a));
+    v2.set(a, v2.scl(v2.simtrf(c, a.r, -br), a.r/v2.sqr(c)));
     v2.set_unit(b, v2.tilde(a));
 }
 

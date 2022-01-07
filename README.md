@@ -4,7 +4,7 @@
 
 # `v2` - A Minimalistic 2D Symplectic Vector Space JavaScript Class
 
-A short overview about symplectic geometry in vector space $\R^2$ is given in this [Cheat Sheet](https://www.researchgate.net/publication/348869700_Symplectic_Geometry_in_R2_-_Cheat_Sheet_V10). If you want to learn more, [read this](). In a nutshell: 
+A short overview about symplectic geometry in vector space &#x211d;<sup>2</sup> is given in this [Cheat Sheet](https://www.researchgate.net/publication/348869700_Symplectic_Geometry_in_R2_-_Cheat_Sheet_V10). If you want to learn more, [read this](https://www.researchgate.net/publication/338124384_Symplectic_Geometry_for_Engineers_-_Fundamentals). In a nutshell: 
 
 > "The *standard inner (dot) product* together with an *orthogonal operator* is the *symplectic inner product*."
 
@@ -12,9 +12,9 @@ Symplectic geometry is a geometry of even dimensional spaces in   which area mea
 
 * Symplectic geometry is coordinate free, i.e. coordinates aren't needed except weexplicitly want them.
 * The definition of an explicit origin is not required.
-* Transformation matrices are rarely need. Similarity transformation mostly does whatwe want. 
+* Transformation matrices are rarely need. Similarity transformation mostly does what we want. 
 
-In its version 3.0 `v2` class library has undergone considerable changes. We now have `v2` objects as well as `v2` static functions. Latter work with arbitrary objects as long as these expose `x` and `y` members or `x` and `y` getters and setters.
+`v2` class library in its version 3.0 has undergone considerable changes. We now have `v2` objects as well as `v2` static functions. Latter work with arbitrary objects as long as these expose `x` and `y` members or `x` and `y` getters and setters.
 
 * `v2` objects
     * Properties
@@ -185,7 +185,7 @@ Functions `case1, case2, case3, case4, case5` allow to easily solve the [five ca
 | `v2.case5` |&ndash;| `(a,b,c,sgn)` | Fifth case of the [planar vector triangle equation](https://www.researchgate.net/publication/330997539_The_Five_Cases_of_the_Planar_Vector_Equation). Direction and magnitude of vector `a` as well as direction of vector `b` (needs to be orthogonal to `a`) is modified with respect to sign `sgn` of requested solution. |
 
 `v2` is minimal and well suited for graphics, physics 
-and engineering applications. It is tiny. `v2` weights 15 kB uncompressed and 3 kb minified.
+and engineering applications. It is tiny. `v2` weights 22 kB uncompressed and 6 kb minified.
 
 # Node Installation
 
@@ -208,13 +208,14 @@ const u = v2(3,4);
 
 `npm run test`
 
-## GitCDN
-Use the link [https://gitcdn.xyz/repo/goessner/v2/master/v2.min.js](https://gitcdn.xyz/repo/goessner/v2/master/v2.min.js)
-for getting the latest commit as a raw file.
+## CDN
+Use the link [https://cdn.jsdelivr.net/gh/goessner/v2/v2.js](https://cdn.jsdelivr.net/gh/goessner/v2/v2.js) for uncompressed and
+[https://cdn.jsdelivr.net/gh/goessner/v2/v2.min.js](https://cdn.jsdelivr.net/gh/goessner/v2/v2.min.js)
+for minified version.
 
 In HTML use ...
 ```html
-<script src="https://gitcdn.xyz/repo/goessner/v2/master/v2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/goessner/v2/v2.min.js"></script>
 ```
 
 # License
@@ -224,6 +225,10 @@ v2 is licensed under the terms of the MIT License. See LICENSE-MIT for details.
 #Change Log
 
 All notable changes to this project will be documented in this file. This project adheres to Semantic Versioning.
+
+## 3.0.0 - 2021-22-05
+
+Fundmental rewrite. Provide lightweight objects and static functions.
 
 ## 1.3.8 - 2016-12-07
 

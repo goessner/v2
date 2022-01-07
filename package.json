@@ -1,6 +1,6 @@
 {
   "name": "v2d",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "v2 -  A Minimalistic 2D Vector Class",
   "keywords": [
     "vector",
@@ -11,7 +11,7 @@
   "microjam": {},
   "scripts": {
     "build": "npm run minify && npm run jsdoc",
-    "minify": "uglifyjs ./v2.js -o ./dist/v2.min.js --comments",
+    "minify": "uglifyjs ./v2.js -o ./v2.min.js --comments",
     "jsdoc": "jsdoc2md ./v2.js > ./docs/api/v2.md"
   },
   "author": "Stefan Goessner <fang03@web.de>",
